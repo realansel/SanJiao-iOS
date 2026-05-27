@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 轻账 Icon · 方案3 · 双波 — 今日 vs 日均，产品逻辑直接可见 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="mainGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#78BDE2"/>
+      <stop offset="100%" stop-color="#41BEB6"/>
+    </linearGradient>
+    <!-- Reference wave: same gradient, muted -->
+    <linearGradient id="refGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#78BDE2" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#41BEB6" stop-opacity="0.28"/>
+    </linearGradient>
+    <!-- Main wave glow -->
+    <filter id="mainGlow" x="-15%" y="-100%" width="130%" height="300%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="114" fill="#FFFFFF"/>
+
+  <!--
+    Reference "average" wave — nearly flat, gentle drift
+    Sits lower, represents the daily baseline
+  -->
+  <path
+    d="M 64,308 C 150,298 245,318 335,306 C 385,300 422,308 448,304"
+    stroke="url(#refGrad)"
+    stroke-width="6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+
+  <!--
+    Main "today" wave — rises above the reference
+    Starts near the average, breaks upward, expressing divergence
+  -->
+  <path
+    d="M 80,300 C 148,218 204,222 258,262 C 312,300 368,196 432,220"
+    stroke="url(#mainGrad)"
+    stroke-width="14"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+    filter="url(#mainGlow)"
+  />
+
+  <!-- Small endpoint dot on main wave (today's position) -->
+  <circle cx="432" cy="220" r="10"
+          fill="#41BEB6"
+          opacity="0.85"/>
+</svg>

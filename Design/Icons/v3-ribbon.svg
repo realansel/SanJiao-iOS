@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 轻账 Icon · 方案1 · 丝带 — 线变面，有体积感的波形带 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <!-- Diagonal gradient following ribbon direction -->
+    <linearGradient id="ribbonGrad" gradientUnits="userSpaceOnUse"
+                    x1="80" y1="156" x2="432" y2="336">
+      <stop offset="0%"   stop-color="#A6D8F2"/>
+      <stop offset="100%" stop-color="#3DBDB4"/>
+    </linearGradient>
+    <!-- Highlight overlay: white sheen on upper edge -->
+    <linearGradient id="sheen" gradientUnits="userSpaceOnUse"
+                    x1="80" y1="180" x2="432" y2="240">
+      <stop offset="0%"   stop-color="#FFFFFF" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.0"/>
+    </linearGradient>
+    <filter id="softGlow" x="-12%" y="-25%" width="124%" height="150%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="114" fill="#FFFFFF"/>
+
+  <!--
+    Ribbon construction (thickness = 90px, radius = 45):
+    Top edge  : M 80,236  C 148,156 202,164 256,206  C 310,248 368,146 432,176
+    Bottom edge: M 80,326  C 148,246 202,254 256,296  C 310,338 368,236 432,266
+    Right cap : A 45,45 0 0,1  (CW → bulges right)
+    Left cap  : A 45,45 0 0,0  (CCW → bulges left)
+  -->
+  <path
+    d="M 80,236
+       C 148,156 202,164 256,206
+       C 310,248 368,146 432,176
+       A 45,45 0 0,1 432,266
+       C 368,236 310,338 256,296
+       C 202,254 148,246 80,326
+       A 45,45 0 0,0 80,236
+       Z"
+    fill="url(#ribbonGrad)"
+    filter="url(#softGlow)"
+  />
+
+  <!-- White sheen on upper third of ribbon -->
+  <path
+    d="M 80,236
+       C 148,156 202,164 256,206
+       C 310,248 368,146 432,176
+       A 45,45 0 0,1 432,236
+       C 368,206 310,308 256,266
+       C 202,226 148,218 80,296
+       A 32,32 0 0,0 80,236
+       Z"
+    fill="url(#sheen)"
+  />
+</svg>

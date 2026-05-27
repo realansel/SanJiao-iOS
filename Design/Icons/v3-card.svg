@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 轻账 Icon · 方案2 · 卡片 — 波形有了承载体，留白变得"被设计过" -->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#78BDE2"/>
+      <stop offset="100%" stop-color="#41BEB6"/>
+    </linearGradient>
+    <!-- Card soft shadow -->
+    <filter id="cardShadow" x="-8%" y="-20%" width="116%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="12"
+                    flood-color="#9AC4DC" flood-opacity="0.28"/>
+    </filter>
+    <!-- Wave glow -->
+    <filter id="waveGlow" x="-15%" y="-100%" width="130%" height="300%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="114" fill="#FFFFFF"/>
+
+  <!-- Soft card — pale blue-white, contains the wave visually -->
+  <rect x="38" y="188" width="436" height="136" rx="30"
+        fill="#EBF5FA"
+        filter="url(#cardShadow)"/>
+
+  <!-- Rising wave passing through the card -->
+  <path
+    d="M 80,286 C 148,206 202,214 256,256 C 310,298 368,196 432,226"
+    stroke="url(#waveGrad)"
+    stroke-width="14"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+    filter="url(#waveGlow)"
+  />
+</svg>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 轻账 Icon v6 · 流动 — 双层叠波，有层次感和流动深度 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#80C8E8"/>
+      <stop offset="100%" stop-color="#45C5BA"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#80C8E8" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#45C5BA" stop-opacity="0.28"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-50%" width="140%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="114" fill="#FFFFFF"/>
+
+  <!-- Shadow wave (offset +18px down, low opacity) -->
+  <path
+    d="M 80,274 C 143,198 193,198 256,274 C 319,350 369,350 432,274"
+    stroke="url(#g2)"
+    stroke-width="13"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+
+  <!-- Main wave (centered) -->
+  <path
+    d="M 80,256 C 143,180 193,180 256,256 C 319,332 369,332 432,256"
+    stroke="url(#g)"
+    stroke-width="13"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+    filter="url(#glow)"
+  />
+</svg>

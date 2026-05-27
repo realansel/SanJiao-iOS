@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 轻账 Icon v3 · 微升 — 波动中带向上趋势，积极感 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="30%" x2="100%" y2="70%">
+      <stop offset="0%"   stop-color="#80C8E8"/>
+      <stop offset="100%" stop-color="#45C5BA"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-50%" width="140%" height="200%">
+      <feGaussianBlur stdDeviation="4.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="114" fill="#FFFFFF"/>
+
+  <!-- Rising wave: starts at y=286, ends at y=226, one oscillation in between -->
+  <path
+    d="M 80,286
+       C 148,206 202,214 256,256
+       C 310,298 368,196 432,226"
+    stroke="url(#g)"
+    stroke-width="13"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+    filter="url(#glow)"
+  />
+</svg>

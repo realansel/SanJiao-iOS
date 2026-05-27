@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 轻账 Icon · 合并版 — 卡片容器 + 双波叙事 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <!-- Main wave gradient -->
+    <linearGradient id="mainGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#78BDE2"/>
+      <stop offset="100%" stop-color="#41BEB6"/>
+    </linearGradient>
+
+    <!-- Reference wave: same hue, heavily muted -->
+    <linearGradient id="refGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#78BDE2" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#41BEB6" stop-opacity="0.32"/>
+    </linearGradient>
+
+    <!-- Card drop shadow -->
+    <filter id="cardShadow" x="-10%" y="-25%" width="120%" height="170%">
+      <feDropShadow dx="0" dy="5" stdDeviation="14"
+                    flood-color="#8BBDD6" flood-opacity="0.22"/>
+    </filter>
+
+    <!-- Main wave glow -->
+    <filter id="waveGlow" x="-15%" y="-110%" width="130%" height="320%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Dot glow -->
+    <filter id="dotGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Icon background -->
+  <rect width="512" height="512" rx="114" fill="#FFFFFF"/>
+
+  <!--
+    Soft card — the "承载体"
+    Waves cross slightly beyond its edges intentionally:
+    the card frames the data window, not clips it
+  -->
+  <rect x="36" y="184" width="440" height="144" rx="30"
+        fill="#EAF4FA"
+        filter="url(#cardShadow)"/>
+
+  <!--
+    Reference wave — "日均" baseline
+    Nearly flat, just enough drift to feel alive, not mechanical
+    Both waves originate near the same y (~306) at the left edge:
+    same starting point expresses "we both began the same"
+  -->
+  <path
+    d="M 64,306 C 155,296 248,316 338,304 C 388,298 424,306 448,302"
+    stroke="url(#refGrad)"
+    stroke-width="6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+
+  <!--
+    Main wave — "今日" spending
+    Starts near the reference, diverges upward to the right:
+    the widening gap is the visual story — today rose above average
+  -->
+  <path
+    d="M 80,302 C 148,216 204,224 258,264 C 312,302 368,194 432,218"
+    stroke="url(#mainGrad)"
+    stroke-width="14"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+    filter="url(#waveGlow)"
+  />
+
+  <!--
+    Endpoint dot — anchors "now"
+    Placed at the tip of the main wave
+  -->
+  <circle cx="432" cy="218" r="11"
+          fill="#41BEB6"
+          opacity="0.92"
+          filter="url(#dotGlow)"/>
+</svg>
