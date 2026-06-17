@@ -50,10 +50,21 @@ extension ShapeStyle where Self == Color {
                 ? UIColor(hex: "373179") : UIColor(hex: "EFECFF")
         })
     }
+    /// 柔和墨绿——莫兰迪色系，承担"收入 / 完成"等正向语义；
+    /// 避开 iOS 标准 #34C759 那种"超市价签"感，留出空间让品牌紫保持稀缺。
     static var appGreen: Color {
         Color(UIColor { t in
             t.userInterfaceStyle == .dark
-                ? UIColor(hex: "32BF60") : UIColor(hex: "25A24A")
+                ? UIColor(hex: "7CAA94") : UIColor(hex: "4A8B70")
+        })
+    }
+    /// 荧青——"数据洞察"语义色，与 App 图标的数据点同源；
+    /// 仅用于图表活动点、点选后的洞察读数，禁止用于按钮和大面积填充。
+    /// 浅色模式加深为墨青，保证白卡片上的可读性。
+    static var appTeal: Color {
+        Color(UIColor { t in
+            t.userInterfaceStyle == .dark
+                ? UIColor(hex: "3FE8D4") : UIColor(hex: "0FA896")
         })
     }
     static var appRed: Color {

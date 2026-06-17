@@ -1,0 +1,10 @@
+.DS_Store
+DerivedData/
+build/
+*.xcuserstate
+
+# 工程改名后遗留的旧目录（已迁移到 Qingyu_Quillion.xcodeproj）
+/YueJian.xcodeproj/
+
+# 宣传图草稿（弃用）
+/Design/AppStore截图/discard/

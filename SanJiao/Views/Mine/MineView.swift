@@ -6,7 +6,9 @@ import UserNotifications
 struct MineView: View {
     @Environment(AppState.self) private var appState
     @Environment(UnlockManager.self) private var unlockManager
+    @Environment(AppLockManager.self) private var appLock
     @Query(sort: \Transaction.date, order: .reverse) private var transactions: [Transaction]
+    @AppStorage(AppLockManager.enabledKey) private var appLockEnabled = false
     @AppStorage("notification_enabled") private var notificationEnabled = false
     @AppStorage("notification_hour") private var notificationHour = 21
     @AppStorage("notification_minute") private var notificationMinute = 0
@@ -21,9 +23,9 @@ struct MineView: View {
     @State private var navResetID = UUID()
     @State private var showFeedbackCopied = false
 
-    private let feedbackEmail = "hello@qingzhang.app"
+    private let feedbackEmail = "qingyu_bookkeeping@163.com"
     /// App Store 数字 ID — 上架审核通过后从 App Store Connect 取到真实 ID 替换此处
-    private let appStoreID = "0000000000"
+    private let appStoreID = "6779131633"
     /// 直接打开 App Store 评分页（itms-apps 协议会唤起 App Store app，不会在 Safari 里弹出来）
     private var appStoreReviewURL: URL? {
         URL(string: "itms-apps://itunes.apple.com/app/id\(appStoreID)?action=write-review")
@@ -199,6 +201,7 @@ struct MineView: View {
             unlockCard
             dataCard
             notificationCard
+            securityCard
             appearanceCard
             supportCard
         }
@@ -220,7 +223,7 @@ struct MineView: View {
                     .font(.system(size: 20))
                     .foregroundStyle(Color.appAccent)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("悦笺已解锁")
+                    Text("青羽已解锁")
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(.appPrimary)
                     Text("买断制 · 永久使用 · 感谢支持 ☀️")
@@ -283,7 +286,7 @@ struct MineView: View {
                         Text("试用已结束")
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(.appPrimary)
-                        Text("解锁悦笺，继续记录你的消费")
+                        Text("解锁青羽，继续记录你的消费")
                             .font(.system(size: 12))
                             .foregroundStyle(.appSecondary)
                     }
@@ -311,6 +314,11 @@ struct MineView: View {
             Divider()
             NavigationLink(destination: BillImportView()) {
                 settingsRow(icon: "📂", title: String(localized: "账单管理"), subtitle: String(localized: "导入第三方账单，或导出本地账单"))
+            }
+            .buttonStyle(.plain)
+            Divider().padding(.leading, 62)
+            NavigationLink(destination: CategoryManagementView()) {
+                settingsRow(icon: "🏷️", title: String(localized: "分类管理"), subtitle: String(localized: "新增、排序或修改记账分类"))
             }
             .buttonStyle(.plain)
         }
@@ -343,6 +351,35 @@ struct MineView: View {
                         } else {
                             NotificationManager.cancelDailyReminder()
                         }
+                    }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+        }
+        .background(Color.appCard)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    private var securityCard: some View {
+        VStack(spacing: 0) {
+            sectionHeader(String(localized: "安全"))
+            Divider()
+            HStack(spacing: 14) {
+                Text("🔐").font(.system(size: 20)).frame(width: 36, alignment: .center)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("应用锁")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(.appPrimary)
+                    Text("用 Face ID 或密码进入青羽")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.appSecondary)
+                }
+                Spacer()
+                Toggle("", isOn: $appLockEnabled)
+                    .tint(Color.appAccent)
+                    .labelsHidden()
+                    .onChange(of: appLockEnabled) { _, on in
+                        appLock.setEnabled(on)
                     }
             }
             .padding(.horizontal, 16)

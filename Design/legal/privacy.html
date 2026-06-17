@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>青羽记账 · 隐私政策</title>
+<style>
+  :root{
+    --purple:#5143EF; --purple-dk:#2E2680; --teal:#0F6E56;
+    --ink:#1c1c28; --sub:#5f5e6e; --line:rgba(0,0,0,.08); --card:#fff; --bg:#f4f3f9;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.75; font-size:16px;
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:32px 20px 80px}
+  header{padding:28px 0 8px}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:600; color:var(--purple); font-size:18px}
+  .brand .dot{width:24px;height:24px;border-radius:7px;display:inline-block;vertical-align:-5px}
+  h1{font-size:28px; margin:18px 0 4px; letter-spacing:-.5px}
+  .meta{color:var(--sub); font-size:14px; margin:0 0 18px}
+  .lede{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 20px; font-size:17px; margin:0 0 26px}
+  .lede strong{color:var(--purple-dk)}
+  h2{font-size:18px; margin:30px 0 8px; color:var(--purple-dk)}
+  p{margin:8px 0}
+  ul{margin:8px 0; padding-left:20px}
+  li{margin:5px 0}
+  .nocollect{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:8px 20px; margin:14px 0}
+  .nocollect li{color:var(--teal); font-weight:500}
+  a{color:var(--purple)}
+  footer{color:var(--sub); font-size:13px; margin-top:40px; border-top:1px solid var(--line); padding-top:18px}
+  code{background:#eceafb; color:var(--purple-dk); padding:1px 6px; border-radius:6px; font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><img class="dot" src="icon.png" alt="">青羽记账 · Quillion</div>
+    <h1>隐私政策</h1>
+    <p class="meta">生效日期：2026 年 6 月 17 日 · 最近更新：2026 年 6 月 17 日</p>
+  </header>
+
+  <div class="lede">
+    青羽记账是一款<strong>完全本地</strong>的记账工具。我们没有服务器，也<strong>不收集你的任何隐私数据</strong>。你的账单只属于你一个人。
+  </div>
+
+  <h2>1. 数据只在你的设备上</h2>
+  <p>所有账单数据通过 Apple 的 SwiftData 存储在你的设备本地。青羽没有服务器，不会将你的账单上传到任何地方。</p>
+  <p>如果你开启了 iCloud 备份，这些数据会随 iOS 系统备份一同加密存储，该过程由你的系统设置控制，青羽无法访问。</p>
+
+  <h2>2. 设备级加密保护</h2>
+  <p>账单数据库在磁盘上始终以密文存储，并启用了 iOS 最高的文件保护等级。设备锁屏后，解密密钥会从内存中清除——前提是你为设备设置了锁屏密码。</p>
+  <p>你还可以在「我的 → 安全」中开启<strong>应用锁</strong>，每次进入青羽需通过 Face ID / Touch ID 或设备密码，多一层保护。</p>
+
+  <h2>3. 语音记账与语音转写</h2>
+  <p>使用语音记账时：</p>
+  <ul>
+    <li><strong>支持的机型</strong>（较新 iPhone）在设备端离线完成语音转写，音频不离开你的手机。</li>
+    <li><strong>较旧机型</strong>会借助 Apple 的语音识别服务处理你的语音，此时音频会按 Apple 的隐私政策传输给 Apple 用于转写。</li>
+    <li>首次使用时，iOS 会弹出系统授权提示（其中包含 Apple 的标准说明），是否授权由你决定。</li>
+    <li>无论哪种方式，<strong>青羽自身从不存储、上传或分析你的音频</strong>。</li>
+  </ul>
+
+  <h2>4. 没有广告，没有追踪</h2>
+  <p>青羽不含任何广告、第三方分析工具或追踪 SDK，整个应用只使用 Apple 提供的系统框架。我们不收集、也不分析你的使用行为。</p>
+
+  <h2>5. 账单导入</h2>
+  <p>你可以选择导入微信、支付宝等账单文件。文件的解析与分类<strong>全部在你的设备本地完成</strong>，不会上传到任何服务器。</p>
+
+  <h2>6. 付费与内购</h2>
+  <p>青羽通过一次性购买（买断制）解锁，购买通过 Apple App Store 完成，由 Apple 处理交易，我们不会接触你的支付信息。我们的收入与你的数据完全无关，因此没有任何动机去收集或变现它。</p>
+
+  <h2>7. 我们不收集的数据</h2>
+  <p>依据 Apple App Store 隐私规范，青羽对应「<strong>不收集数据</strong>」：</p>
+  <div class="nocollect">
+    <ul>
+      <li>不收集身份信息（姓名、邮箱、账号）</li>
+      <li>不收集账单与财务内容</li>
+      <li>不收集位置信息</li>
+      <li>不收集联系人、相册等设备数据</li>
+      <li>不收集使用行为、设备标识或诊断数据</li>
+    </ul>
+  </div>
+
+  <h2>8. 儿童隐私</h2>
+  <p>青羽不面向 13 岁以下儿童设计，也不会有意收集儿童的任何信息（事实上我们不收集任何人的信息）。</p>
+
+  <h2>9. 第三方</h2>
+  <p>除了 Apple 提供的系统服务（如语音识别、iCloud 备份、App Store 内购），青羽不与任何第三方共享数据，因为我们本就没有可共享的数据。</p>
+
+  <h2>10. 政策变更</h2>
+  <p>如本政策有更新，我们会修改本页面顶部的「最近更新」日期。重大变更会在应用内提示。</p>
+
+  <h2>11. 联系我们</h2>
+  <p>如对隐私有任何疑问，欢迎联系：<a href="mailto:qingyu_bookkeeping@163.com">qingyu_bookkeeping@163.com</a></p>
+
+  <footer>
+    © 2026 青羽记账（Quillion）. 本页面即青羽记账的官方隐私政策，可作为 App Store 提交所需的隐私政策链接。
+  </footer>
+</div>
+</body>
+</html>

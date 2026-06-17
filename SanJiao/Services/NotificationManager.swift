@@ -2,7 +2,7 @@ import UserNotifications
 
 enum NotificationManager {
 
-    static let dailyReminderID = "com.sanjiao.daily-reminder"
+    static let dailyReminderID = "app.qingyu.daily-reminder"
 
     // MARK: - Permission
 

@@ -227,12 +227,6 @@ struct TodayView: View {
                         .buttonStyle(.plain)
                     }
 
-                    Text("数据仅存储在本设备  ·  私密安全")
-                        .font(.system(size: 10))
-                        .foregroundStyle(.appTertiary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 2)
-                        .padding(.bottom, 114)
                 }
             }
             .background(Color.appBg)
@@ -252,50 +246,77 @@ struct TodayView: View {
                     Text(badge)
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.appSecondary)
-                        .padding(.bottom, 4)
+                        .padding(.bottom, 8)
                 }
                 .buttonStyle(.plain)
             }
 
-            Button {
-                if unlockManager.canRecord {
-                    appState.openRecordSheet()
-                } else {
-                    appState.showPaywall = true
-                }
-            } label: {
-                HStack(spacing: 6) {
-                    if !unlockManager.canRecord {
-                        Image(systemName: "lock.fill")
-                            .font(.system(size: 14, weight: .semibold))
+            HStack(spacing: 10) {
+                // 主入口：手记一笔
+                Button {
+                    if unlockManager.canRecord {
+                        appState.openRecordSheet()
+                    } else {
+                        appState.showPaywall = true
                     }
-                    Text(unlockManager.canRecord ? String(localized: "记一笔") : String(localized: "试用已结束，点击解锁"))
-                        .font(.system(size: 17, weight: .semibold))
+                } label: {
+                    HStack(spacing: 7) {
+                        if unlockManager.canRecord {
+                            FeatherMark()
+                                .frame(width: 15, height: 21)
+                        } else {
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 14, weight: .semibold))
+                        }
+                        Text(unlockManager.canRecord ? String(localized: "记一笔") : String(localized: "试用已结束，点击解锁"))
+                            .font(.system(size: 17, weight: .semibold))
+                    }
+                    .foregroundStyle(.white)
+                    .frame(height: 52)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        unlockManager.canRecord
+                            ? AnyShapeStyle(LinearGradient.accentGradient)
+                            : AnyShapeStyle(Color.appSecondary.opacity(0.5))
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
-                .foregroundStyle(.white)
-                .frame(height: 60)
-                .frame(maxWidth: 288)
-                .frame(maxWidth: .infinity)
-                .background(
-                    unlockManager.canRecord
-                        ? AnyShapeStyle(LinearGradient.accentGradient)
-                        : AnyShapeStyle(Color.appSecondary.opacity(0.5))
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .shadow(color: Color.appAccent.opacity(unlockManager.canRecord ? 0.14 : 0), radius: 10, y: 5)
+                .buttonStyle(.plain)
+
+                // 平行入口：说一笔（语音）——记=写、说=说，成对
+                if unlockManager.canRecord {
+                    Button {
+                        appState.openRecordSheet(startVoice: true)
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "mic.fill")
+                                .font(.system(size: 15, weight: .semibold))
+                            Text("说一笔")
+                                .font(.system(size: 17, weight: .semibold))
+                        }
+                        .foregroundStyle(.appAccent)
+                        .frame(height: 52)
+                        .padding(.horizontal, 18)
+                        .background(Color.appAccentSoft)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                }
             }
-            .buttonStyle(.plain)
-            .padding(.horizontal, 40)
-            .padding(.top, 10)
-            .padding(.bottom, 20)
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
+            .padding(.bottom, 12)
         }
         .background(
-            LinearGradient(
-                colors: [Color.appBg.opacity(0), Color.appBg.opacity(0.92), Color.appBg],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea(edges: .bottom)
+            // 不透明底色 + 顶部细分割线——iOS 原生 bottom bar 写法，
+            // 列表底部不再被透明渐变"啃掉"，视觉边界清晰。
+            Color.appBg
+                .overlay(alignment: .top) {
+                    Rectangle()
+                        .fill(Color.appSeparator.opacity(0.6))
+                        .frame(height: 0.5)
+                }
+                .ignoresSafeArea(edges: .bottom)
         )
     }
 
@@ -407,7 +428,8 @@ struct TodayMetricDisplay {
         return amount / baselineValue
     }
 
-    var isSaving: Bool { amount < baselineValue }
+    /// 1.0× 视为节省态——「刚好达到日均」不该报警；> 1.0× 才进入超出态。
+    var isSaving: Bool { amount <= baselineValue }
 }
 
 // MARK: - Home header
@@ -416,11 +438,20 @@ struct HomeHeaderView: View {
     let display: TodayMetricDisplay
     @State private var showReferenceHelp = false
 
-    private var greeting: String {
+    private var greetingShort: String {
         let h = Calendar.current.component(.hour, from: Date())
-        let dow = [String(localized: "周日"), String(localized: "周一"), String(localized: "周二"), String(localized: "周三"), String(localized: "周四"), String(localized: "周五"), String(localized: "周六")][Calendar.current.component(.weekday, from: Date()) - 1]
-        let greet = h < 12 ? String(localized: "早上好") : h < 18 ? String(localized: "下午好") : String(localized: "晚上好")
-        return String(localized: "\(greet) · \(dow)")
+        return h < 12 ? String(localized: "早上好") : h < 18 ? String(localized: "下午好") : String(localized: "晚上好")
+    }
+
+    private var dateSubtitle: String {
+        let dow = [
+            String(localized: "周日"), String(localized: "周一"), String(localized: "周二"),
+            String(localized: "周三"), String(localized: "周四"), String(localized: "周五"),
+            String(localized: "周六")
+        ][Calendar.current.component(.weekday, from: Date()) - 1]
+        let f = DateFormatter()
+        f.setLocalizedDateFormatFromTemplate("MMMd")
+        return "\(f.string(from: Date())) · \(dow)"
     }
 
     // MARK: - Tiered spending comment
@@ -448,72 +479,72 @@ struct HomeHeaderView: View {
 
         if ratio == 0 {
             let pool = [
-                String(localized: "今天还没花钱，钱包在放空"),
-                String(localized: "今天还没有支出，节奏很轻"),
-                String(localized: "今日账单还是空白，先慢慢开始"),
+                String(localized: "新的一天，慢慢来"),
+                String(localized: "今天还没有支出"),
+                String(localized: "钱包还很安静"),
             ]
             return pool[i]
         } else if ratio < 0.2 {
             let pool = [
-                String(localized: "日均的 \(pct)%，少即是多，今天你做到了"),
-                String(localized: "日均的 \(pct)%，今天支出不多，挺轻松"),
-                String(localized: "日均的 \(pct)%，今天整体很克制"),
+                String(localized: "一个好的开端"),
+                String(localized: "起步轻，接着来"),
+                String(localized: "记下了第一笔，节奏不重"),
             ]
             return pool[i]
         } else if ratio < 0.5 {
             let pool = [
-                String(localized: "日均的 \(pct)%，把钱留给更值得的地方"),
-                String(localized: "日均的 \(pct)%，今天的支出比较温和"),
-                String(localized: "日均的 \(pct)%，今天还留了不少余地"),
+                String(localized: "今天的步子稳"),
+                String(localized: "继续顺其自然"),
+                String(localized: "还有不少空间"),
             ]
             return pool[i]
         } else if ratio < 0.8 {
             let pool = [
-                String(localized: "日均的 \(pct)%，今天整体偏稳"),
-                String(localized: "日均的 \(pct)%，今天花得有分寸"),
-                String(localized: "日均的 \(pct)%，今天的节制，是明天的余地"),
+                String(localized: "慢慢往前走"),
+                String(localized: "今天和往常差不多"),
+                String(localized: "节奏自然，继续记"),
             ]
             return pool[i]
         } else if ratio < 1.0 {
             let pool = [
-                String(localized: "日均的 \(pct)%，今天很稳，存的是将来某天的任性"),
-                String(localized: "日均的 \(pct)%，今天快到日均了"),
-                String(localized: "日均的 \(pct)%，今天整体还算平稳"),
+                String(localized: "快接近日均了"),
+                String(localized: "差不多到熟悉的位置"),
+                String(localized: "再花一点就到日均"),
             ]
             return pool[i]
         } else if ratio < 1.1 {
             let pool = [
-                String(localized: "贴着日均走，不多不少，这就叫生活节奏"),
-                String(localized: "今天和日均差不多，节奏挺自然"),
-                String(localized: "今天基本贴着日均走，比较稳"),
+                String(localized: "刚好到日均"),
+                String(localized: "贴着日均走"),
+                String(localized: "和平时差不多"),
             ]
             return pool[i]
         } else if ratio < 1.5 {
             let pool = [
-                String(localized: "超日均 \(over)%，今天比平时快一点"),
-                String(localized: "超日均 \(over)%，偶尔多花一点，也很正常"),
-                String(localized: "超日均 \(over)%，账记清楚了，心里会更稳"),
+                String(localized: "比日均多了一点 (+\(over)%)"),
+                String(localized: "今天稍微超出一点"),
+                String(localized: "多花了一些，记清楚就好"),
             ]
             return pool[i]
         } else if ratio < 10.0 {
             let pool = [
-                String(localized: "日均的 \(pct)%，今天开销比较集中"),
-                String(localized: "日均的 \(pct)%，今天明显高于平时"),
-                String(localized: "日均的 \(pct)%，大手笔的日子，总会有几天"),
+                String(localized: "今天比平时多一些"),
+                String(localized: "节奏快了一点"),
+                String(localized: "比往常高一些"),
             ]
             return pool[i]
         } else if ratio < 50.0 {
             let pool = [
-                String(localized: "日均的 \(times) 倍，今天应该有一笔比较特别的支出"),
-                String(localized: "日均的 \(times) 倍，这类开销不常见，记下来更有参考价值"),
-                String(localized: "日均的 \(times) 倍，今天的支出和平时差得比较多"),
+                String(localized: "今天有一笔特别的支出"),
+                String(localized: "数字比平时大不少"),
+                String(localized: "今天和平时不太一样"),
             ]
             return pool[i]
         } else {
             let pool = [
-                String(localized: "日均的 \(times) 倍，今天有一笔非常大的支出"),
-                String(localized: "日均的 \(times) 倍，这样的消费会明显拉高今天的总额"),
-                String(localized: "日均的 \(times) 倍，回头看看这笔记录，会更容易理解今天"),
+                String(localized: "今天有一笔很大的支出"),
+                String(localized: "记下就行了"),
+                String(localized: "数字大，账记清楚就好 (\(times)× 日均)"),
             ]
             return pool[i]
         }
@@ -528,44 +559,44 @@ struct HomeHeaderView: View {
 
         if ratio == 0 {
             let pool = [
-                String(localized: "本月还没有明显支出，和参考比会慢很多"),
-                String(localized: "本月暂时还很轻，节奏明显慢于参考"),
-                String(localized: "这个月刚开始，当前支出还远低于参考"),
+                String(localized: "新的月份，慢慢来"),
+                String(localized: "本月还没有支出"),
+                String(localized: "这个月才刚开始"),
             ]
             return pool[i]
         } else if ratio < 0.6 {
             let pool = [
-                String(localized: "本月比参考慢了 \(under)%，整体还很轻"),
-                String(localized: "本月支出明显慢于参考，留白还很多"),
-                String(localized: "本月目前比参考慢不少，节奏比较松"),
+                String(localized: "本月起步轻"),
+                String(localized: "节奏还很松"),
+                String(localized: "还有不少空间"),
             ]
             return pool[i]
         } else if ratio < 0.95 {
             let pool = [
-                String(localized: "本月比参考慢了 \(under)%，整体还挺从容"),
-                String(localized: "本月支出比参考慢一些，还有余地"),
-                String(localized: "本月目前低于参考，节奏比较稳"),
+                String(localized: "本月慢慢往前走"),
+                String(localized: "比参考线略低 (-\(under)%)"),
+                String(localized: "节奏稳，还有余地"),
             ]
             return pool[i]
         } else if ratio < 1.08 {
             let pool = [
-                String(localized: "本月和参考差不多，整体挺稳"),
-                String(localized: "本月基本贴着参考线走，不紧不慢"),
-                String(localized: "本月目前和参考接近，节奏自然"),
+                String(localized: "本月贴着参考线走"),
+                String(localized: "本月节奏自然"),
+                String(localized: "和往常的月份差不多"),
             ]
             return pool[i]
         } else if ratio < 1.5 {
             let pool = [
-                String(localized: "本月比参考线快 \(over)%，知道钱去哪儿就不焦虑"),
-                String(localized: "本月支出比参考快了 \(over)%，先看清楚主要花在了哪里"),
-                String(localized: "本月比参考多了一点，但账清楚了，心会更稳"),
+                String(localized: "本月比参考多一点 (+\(over)%)"),
+                String(localized: "节奏快了一些"),
+                String(localized: "本月花得比往常多些"),
             ]
             return pool[i]
         } else {
             let pool = [
-                String(localized: "本月比参考快了 \(over)%，可能有几笔比较集中的支出"),
-                String(localized: "本月支出明显高于参考，先看看主要花在了哪里"),
-                String(localized: "本月开销跑得比较快，账在这里，慢慢看就好"),
+                String(localized: "本月数字比往常大不少"),
+                String(localized: "可能有几笔比较集中的支出"),
+                String(localized: "账记清楚了，慢慢看就好"),
             ]
             return pool[i]
         }
@@ -578,35 +609,43 @@ struct HomeHeaderView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            swipeableMetricHeader
-
-            // ── Zone 3: Daily-avg comparison ────────────────────────────────
-            if display.baselineValue > 0 {
-                HStack(spacing: 8) {
-                    Text(display.comparisonLabel)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(.appSecondary)
-
-                    SpendingBar(
-                        ratio: display.ratio,
-                        isSaving: display.isSaving,
-                        baselineLabel: display.baselineLabel,
-                        showsReferenceHelp: display.showsReferenceHelp,
-                        referenceHelpTitle: display.referenceHelpTitle,
-                        referenceHelpMessage: display.referenceHelpMessage,
-                        showReferenceHelp: $showReferenceHelp
-                    )
-                }
-                .padding(.bottom, 10)
-
-                Text(spendingComment)
-                    .font(.system(size: 12))
-                    .foregroundStyle(.appTertiary)
-            } else {
-                Text(display.emptyHint)
-                    .font(.system(size: 12))
-                    .foregroundStyle(.appTertiary)
+            // ── Compact header row: 问候 + 段控同高度
+            HStack(alignment: .center) {
+                Text(greetingShort)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(.appSecondary)
+                Spacer()
+                metricSegmentedControl
             }
+            .padding(.bottom, 4)
+
+            // ── 日期副标
+            Text(dateSubtitle)
+                .font(.system(size: 12))
+                .foregroundStyle(.appTertiary)
+                .padding(.bottom, 24)
+
+            // ── Hero amount（带左右滑动手势切换模式）
+            swipeableMetricHero
+
+            // ── 对比条——三阶段统一容器，stage 1 时显示灰槽
+            SpendingBar(
+                hasBaseline: display.baselineValue > 0,
+                ratio: display.ratio,
+                isSaving: display.isSaving,
+                baselineLabel: display.baselineLabel,
+                showsReferenceHelp: display.showsReferenceHelp,
+                referenceHelpTitle: display.referenceHelpTitle,
+                referenceHelpMessage: display.referenceHelpMessage,
+                showReferenceHelp: $showReferenceHelp
+            )
+            .padding(.bottom, 8)
+
+            // ── Inline 洞察文案
+            Text(display.baselineValue > 0 ? spendingComment : display.emptyHint)
+                .font(.system(size: 12))
+                .foregroundStyle(.appTertiary)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.horizontal, 24)
         .padding(.top, 20)
@@ -614,20 +653,11 @@ struct HomeHeaderView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private var swipeableMetricHeader: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text(greeting)
-                .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(.appSecondary)
-                .padding(.bottom, 18)
-
-            metricSegmentedControl
-                .padding(.bottom, 18)
-
+    private var swipeableMetricHero: some View {
+        VStack(alignment: .leading, spacing: 6) {
             Text(display.amountTitle)
                 .font(.system(size: 13))
                 .foregroundStyle(.appTertiary)
-                .padding(.bottom, 6)
 
             HStack(alignment: .lastTextBaseline, spacing: 2) {
                 Text("¥")
@@ -643,7 +673,7 @@ struct HomeHeaderView: View {
                     .foregroundStyle(.appTertiary)
                     .padding(.leading, 2)
             }
-            .padding(.bottom, 12)
+            .padding(.bottom, 16)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
@@ -700,6 +730,8 @@ struct HomeHeaderView: View {
 // MARK: - Spending comparison bar
 
 struct SpendingBar: View {
+    /// 是否已有日均参考（stage 1 时为 false，仅显示灰槽）
+    let hasBaseline: Bool
     /// amount / baseline — unbounded. 1.0 = exactly baseline, 1.4 = 40 % over.
     let ratio: Double
     let isSaving: Bool
@@ -711,6 +743,11 @@ struct SpendingBar: View {
     @Binding var showReferenceHelp: Bool
 
     @State private var shimmerPhase: CGFloat = -0.4
+
+    /// 节省态填充颜色——ratio < 0.8 浅紫（轻松），≥ 0.8 标准紫（临近）
+    private var savingFillColor: Color {
+        ratio < 0.8 ? Color.appAccent.opacity(0.7) : Color.appAccent
+    }
 
     // ─── Semantics ───────────────────────────────────────────────────────────
     // Saving  (ratio < 1): bar total = dailyAvg.
@@ -726,74 +763,41 @@ struct SpendingBar: View {
 
     var body: some View {
         VStack(spacing: 3) {
-            // Label row — 两种模式都在进度条上方显示参考标签：
-            // 超支模式定位在基准线 marker 上方；节省模式右对齐。
+            // Label 行——节省 / 超支模式都右对齐显示「日均 ¥X」
+            // Stage 1 无参考时为空（占位保持高度一致）
             GeometryReader { geo in
-                if isSaving {
+                if hasBaseline {
                     baselineMarkerLabel
                         .frame(width: geo.size.width, height: 12, alignment: .trailing)
-                } else {
-                    let rawMarkerX = geo.size.width / CGFloat(ratio)
-                    let labelWidth = estimatedLabelWidth
-                    let clampedMarkerX = min(
-                        max(rawMarkerX, labelWidth / 2),
-                        max(geo.size.width - (labelWidth / 2), labelWidth / 2)
-                    )
-                    baselineMarkerLabel
-                        .fixedSize()
-                        .position(x: clampedMarkerX, y: 6)
                 }
             }
             .frame(height: 12)
 
-            // Bar row
+            // Bar 行——上限锁定 100%
+            // - Stage 1：纯灰槽
+            // - 节省态 (ratio < 1)：灰槽 + 紫色填充（按 ratio 强度，浅 / 标准）
+            // - 超支态 (ratio ≥ 1)：满格橙色，倍数靠下方文字传达
             GeometryReader { geo in
-                let trackW   = geo.size.width
-                // In saving mode: markerX is the right end (trackW).
-                // In spending mode: markerX = proportion where daily avg sits.
-                let markerX  = isSaving ? trackW : trackW / CGFloat(ratio)
-                let baseFillW = isSaving
-                    ? trackW * CGFloat(min(ratio, 1.0))   // today's portion of avg
-                    : markerX                              // daily-avg portion of today
-                let overflowW = isSaving ? CGFloat(0) : trackW - markerX
-
+                let trackW = geo.size.width
                 ZStack(alignment: .leading) {
-                    // Gray track — only in saving mode (shows room left to avg)
-                    if isSaving {
-                        RoundedRectangle(cornerRadius: 3.5)
-                            .fill(Color.appSeparator)
-                            .frame(height: 7)
-                    }
+                    RoundedRectangle(cornerRadius: 3.5)
+                        .fill(Color.appSeparator)
+                        .frame(height: 7)
 
-                    // Green fill (saving) or soft base (spending)
-                    shimmerFill(
-                        width: max(baseFillW, 6),
-                        color: isSaving ? Color.appGreen : Color.appAccent.opacity(0.35),
-                        animated: isSaving
-                    )
-
-                    // Purple flowing overflow (spending only)
-                    if !isSaving && overflowW > 0 {
+                    if hasBaseline {
+                        let fillRatio = isSaving ? CGFloat(min(ratio, 1.0)) : 1.0
+                        let fillColor = isSaving ? savingFillColor : Color.appOrange
                         shimmerFill(
-                            width: overflowW,
-                            color: Color.appAccent,
+                            width: max(trackW * fillRatio, 6),
+                            color: fillColor,
                             animated: true
                         )
-                        .offset(x: markerX)
-                    }
-
-                    // Marker line (right end in saving, proportional in spending)
-                    if !isSaving {
-                        RoundedRectangle(cornerRadius: 1)
-                            .fill(Color.appAccent.opacity(0.55))
-                            .frame(width: 2, height: 14)
-                            .offset(x: markerX - 1, y: -3.5)
                     }
                 }
             }
             .frame(height: 7)
         }
-        .onAppear  { startShimmer() }
+        .onAppear { startShimmer() }
         .onChange(of: isSaving) { _, _ in startShimmer() }
     }
 
@@ -831,7 +835,7 @@ struct SpendingBar: View {
 
             Text(baselineLabel)
                 .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(isSaving ? Color.appGreen : Color.appAccent.opacity(0.7))
+                .foregroundStyle(isSaving ? Color.appAccent.opacity(0.85) : Color.appOrange)
                 .fixedSize()
         }
     }
@@ -935,3 +939,65 @@ struct TodayEmptyView: View {
 
 // MARK: - Shared empty state (kept for backward-compat in BillView)
 typealias EmptyStateView = TodayEmptyView
+
+// MARK: - 品牌羽毛小标（复用 App 图标的双羽片 + 羽轴几何，矢量绘制，用于「记一笔」按钮）
+struct FeatherMark: View {
+    var tint: Color = .white
+    /// 羽轴——在白羽片上压一条深紫细线当中脉，呼应图标里"羽身上的轴"
+    var ribColor: Color = Color(hex: "5143EF")
+
+    var body: some View {
+        Canvas { ctx, size in
+            let rect = CGRect(origin: .zero, size: size)
+
+            var vanes = Path()
+            // 左羽片
+            vanes.move(to: CGPoint(x: -6, y: 150))
+            vanes.addCurve(to: CGPoint(x: -14, y: -180), control1: CGPoint(x: -88, y: 104), control2: CGPoint(x: -96, y: -30))
+            vanes.addLine(to: CGPoint(x: 0, y: -190))
+            vanes.addCurve(to: CGPoint(x: 2, y: 60), control1: CGPoint(x: 2, y: -120), control2: CGPoint(x: 4, y: -20))
+            vanes.addCurve(to: CGPoint(x: -2, y: 152), control1: CGPoint(x: 1, y: 100), control2: CGPoint(x: 0, y: 130))
+            vanes.closeSubpath()
+            // 右羽片
+            vanes.move(to: CGPoint(x: 2, y: 152))
+            vanes.addCurve(to: CGPoint(x: 8, y: -182), control1: CGPoint(x: 76, y: 104), control2: CGPoint(x: 86, y: -28))
+            vanes.addLine(to: CGPoint(x: 0, y: -190))
+            vanes.addCurve(to: CGPoint(x: 2, y: 70), control1: CGPoint(x: 2, y: -110), control2: CGPoint(x: 4, y: -10))
+            vanes.addCurve(to: CGPoint(x: -2, y: 152), control1: CGPoint(x: 1, y: 110), control2: CGPoint(x: 0, y: 135))
+            vanes.closeSubpath()
+
+            // 羽轴整条——含露在羽片下方的笔尖
+            var shaft = Path()
+            shaft.move(to: CGPoint(x: 0, y: -190))
+            shaft.addCurve(to: CGPoint(x: 2, y: 80), control1: CGPoint(x: 4, y: -100), control2: CGPoint(x: 5, y: 0))
+            shaft.addCurve(to: CGPoint(x: -2, y: 185), control1: CGPoint(x: 1, y: 120), control2: CGPoint(x: 0, y: 150))
+
+            // 羽身中脉——只在白羽片范围内（不伸到笔尖），压深紫给内部定义
+            var rib = Path()
+            rib.move(to: CGPoint(x: 1, y: -158))
+            rib.addCurve(to: CGPoint(x: 1, y: 134), control1: CGPoint(x: 4, y: -60), control2: CGPoint(x: 3, y: 64))
+
+            // 以羽片包围盒等比缩放居中；留旋转余量后整体倾斜 ~14° 呼应图标
+            let b = vanes.boundingRect
+            let scale = min(rect.width / b.width, rect.height / b.height) * 0.86
+            let t = CGAffineTransform.identity
+                .translatedBy(x: rect.midX, y: rect.midY)
+                .rotated(by: 0.24)
+                .scaledBy(x: scale, y: scale)
+                .translatedBy(x: -b.midX, y: -b.midY)
+
+            ctx.fill(vanes.applying(t), with: .color(tint))
+            // 羽轴描白：盖在白羽片上不可见，露出的笔尖在紫底上清晰
+            ctx.stroke(
+                shaft.applying(t),
+                with: .color(tint),
+                style: StrokeStyle(lineWidth: max(size.width * 0.08, 1), lineCap: .round)
+            )
+            ctx.stroke(
+                rib.applying(t),
+                with: .color(ribColor),
+                style: StrokeStyle(lineWidth: max(size.width * 0.07, 1), lineCap: .round)
+            )
+        }
+    }
+}

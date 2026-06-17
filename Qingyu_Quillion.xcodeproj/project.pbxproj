@@ -31,10 +31,12 @@
 		E701122F2F9490A8005896B3 /* BillImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E701122E2F9490A8005896B3 /* BillImportView.swift */; };
 		E70112332F94A24F005896B3 /* CategoryPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E70112322F94A24F005896B3 /* CategoryPickerSheet.swift */; };
 		E7517E422FBEE82700CF8466 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = E7517E412FBEE82700CF8466 /* Localizable.xcstrings */; };
-		F1F1F1F1F1F1F1F1F1F1F102 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F1F1F1F1F1F1F1F1F1F1F101 /* InfoPlist.xcstrings */; };
 		E7KC000000000011 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7KC000000000001 /* KeychainHelper.swift */; };
+		E7AP000000000011 /* AmountParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7AP000000000001 /* AmountParser.swift */; };
+		E7AL000000000011 /* AppLockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7AL000000000001 /* AppLockManager.swift */; };
 		E7KC000000000012 /* UnlockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7KC000000000002 /* UnlockManager.swift */; };
 		E7KC000000000013 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7KC000000000003 /* PaywallView.swift */; };
+		F1F1F1F1F1F1F1F1F1F1F102 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F1F1F1F1F1F1F1F1F1F1F101 /* InfoPlist.xcstrings */; };
 		F279986C252AD9C3ECB05908 /* BillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE61C45384D1CF33BE4C0580 /* BillView.swift */; };
 /* End PBXBuildFile section */
 
@@ -55,7 +57,7 @@
 		9EE7E20EABA18226FA1D7E24 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
 		AC11BB22CC33DD44EE55FF00 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B58733440A0297C0373D703A /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
-		C862DB8BA62DF5FD61DBA86D /* YueJian.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YueJian.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C862DB8BA62DF5FD61DBA86D /* Qingyu_Quillion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Qingyu_Quillion.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC02BF45488498B68159BE51 /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 		D0DC79234F9F7F692A479F7E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D0F8414318D1095E30C68809 /* MonthStatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthStatsView.swift; sourceTree = "<group>"; };
@@ -65,10 +67,12 @@
 		E701122E2F9490A8005896B3 /* BillImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillImportView.swift; sourceTree = "<group>"; };
 		E70112322F94A24F005896B3 /* CategoryPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryPickerSheet.swift; sourceTree = "<group>"; };
 		E7517E412FBEE82700CF8466 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = SanJiao/Resources/Localizable.xcstrings; sourceTree = "<group>"; };
-		F1F1F1F1F1F1F1F1F1F1F101 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = InfoPlist.xcstrings; path = SanJiao/Resources/InfoPlist.xcstrings; sourceTree = "<group>"; };
 		E7KC000000000001 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
+		E7AP000000000001 /* AmountParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountParser.swift; sourceTree = "<group>"; };
+		E7AL000000000001 /* AppLockManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockManager.swift; sourceTree = "<group>"; };
 		E7KC000000000002 /* UnlockManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnlockManager.swift; sourceTree = "<group>"; };
 		E7KC000000000003 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		F1F1F1F1F1F1F1F1F1F1F101 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = InfoPlist.xcstrings; path = SanJiao/Resources/InfoPlist.xcstrings; sourceTree = "<group>"; };
 		FE61C45384D1CF33BE4C0580 /* BillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -132,7 +136,7 @@
 		41E785728F745DD2520202F6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C862DB8BA62DF5FD61DBA86D /* YueJian.app */,
+				C862DB8BA62DF5FD61DBA86D /* Qingyu_Quillion.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -213,6 +217,8 @@
 			isa = PBXGroup;
 			children = (
 				E701122C2F949097005896B3 /* BillImportManager.swift */,
+				E7AP000000000001 /* AmountParser.swift */,
+				E7AL000000000001 /* AppLockManager.swift */,
 				E7KC000000000001 /* KeychainHelper.swift */,
 				E7KC000000000002 /* UnlockManager.swift */,
 				E70112292F93D504005896B3 /* NotificationManager.swift */,
@@ -233,9 +239,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B8A1F85DAEDC30A096C781D7 /* YueJian */ = {
+		B8A1F85DAEDC30A096C781D7 /* Qingyu_Quillion */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 6BABB3DCD56D3A68DD74EBDF /* Build configuration list for PBXNativeTarget "YueJian" */;
+			buildConfigurationList = 6BABB3DCD56D3A68DD74EBDF /* Build configuration list for PBXNativeTarget "Qingyu_Quillion" */;
 			buildPhases = (
 				AC11BB22CC33DD44EE55FF02 /* Resources */,
 				F5D07ED33BD18ED05E20E930 /* Sources */,
@@ -244,11 +250,11 @@
 			);
 			dependencies = (
 			);
-			name = YueJian;
+			name = Qingyu_Quillion;
 			packageProductDependencies = (
 			);
 			productName = SanJiao;
-			productReference = C862DB8BA62DF5FD61DBA86D /* YueJian.app */;
+			productReference = C862DB8BA62DF5FD61DBA86D /* Qingyu_Quillion.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -260,7 +266,7 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 2640;
 			};
-			buildConfigurationList = CDA0CAA5E7C8767EEFF83A92 /* Build configuration list for PBXProject "YueJian" */;
+			buildConfigurationList = CDA0CAA5E7C8767EEFF83A92 /* Build configuration list for PBXProject "Qingyu_Quillion" */;
 			developmentRegion = "zh-Hans";
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -276,7 +282,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B8A1F85DAEDC30A096C781D7 /* YueJian */,
+				B8A1F85DAEDC30A096C781D7 /* Qingyu_Quillion */,
 			);
 		};
 /* End PBXProject section */
@@ -317,6 +323,8 @@
 				E7KC000000000013 /* PaywallView.swift in Sources */,
 				E701122B2F93D504005896B3 /* NotificationManager.swift in Sources */,
 				E701122D2F949097005896B3 /* BillImportManager.swift in Sources */,
+				E7AP000000000011 /* AmountParser.swift in Sources */,
+				E7AL000000000011 /* AppLockManager.swift in Sources */,
 				83C1A7B9E42D4F8AA62C5310 /* CategoryManagementView.swift in Sources */,
 				E70112332F94A24F005896B3 /* CategoryPickerSheet.swift in Sources */,
 				4EDE8D06F0570D0C0477840C /* TodayView.swift in Sources */,
@@ -345,8 +353,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yuejian.app;
-				PRODUCT_NAME = YueJian;
+				PRODUCT_BUNDLE_IDENTIFIER = app.qingyu.ios;
+				PRODUCT_NAME = Qingyu_Quillion;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -428,8 +436,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yuejian.app;
-				PRODUCT_NAME = YueJian;
+				PRODUCT_BUNDLE_IDENTIFIER = app.qingyu.ios;
+				PRODUCT_NAME = Qingyu_Quillion;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -507,7 +515,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		6BABB3DCD56D3A68DD74EBDF /* Build configuration list for PBXNativeTarget "YueJian" */ = {
+		6BABB3DCD56D3A68DD74EBDF /* Build configuration list for PBXNativeTarget "Qingyu_Quillion" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0982EC7D1BAA26EB146D7DC6 /* Debug */,
@@ -516,7 +524,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		CDA0CAA5E7C8767EEFF83A92 /* Build configuration list for PBXProject "YueJian" */ = {
+		CDA0CAA5E7C8767EEFF83A92 /* Build configuration list for PBXProject "Qingyu_Quillion" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D340264BA550E37F62744777 /* Debug */,

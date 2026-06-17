@@ -4,6 +4,7 @@ import SwiftData
 struct ContentView: View {
     @Environment(AppState.self) private var appState
     @Environment(UnlockManager.self) private var unlockManager
+    @Environment(AppLockManager.self) private var appLock
     @AppStorage("display_mode") private var displayModeRaw = DisplayMode.system.rawValue
 
     init() {
@@ -42,7 +43,15 @@ struct ContentView: View {
                     .zIndex(30)
                     .transition(.opacity)
             }
+
+            // 应用锁——盖在最上层，认证通过才揭开
+            if appLock.isEnabled && !appLock.isUnlocked {
+                AppLockView()
+                    .zIndex(100)
+                    .transition(.opacity)
+            }
         }
+        .animation(.easeInOut(duration: 0.2), value: appLock.isUnlocked)
         .preferredColorScheme(DisplayMode(rawValue: displayModeRaw)?.colorScheme)
         .animation(.spring(duration: 0.4), value: appState.showRecordSheet)
         .animation(.easeInOut(duration: 0.5), value: appState.showOnboarding)

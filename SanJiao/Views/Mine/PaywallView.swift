@@ -46,7 +46,7 @@ struct PaywallView: View {
                     .foregroundStyle(.appSecondary)
                     .padding(.bottom, 10)
 
-                    Text("解锁悦笺")
+                    Text("解锁青羽")
                         .font(.system(size: 28, weight: .bold))
                         .foregroundStyle(.appPrimary)
                         .tracking(-0.5)
@@ -74,7 +74,7 @@ struct PaywallView: View {
                                     .tint(.white)
                             } else {
                                 HStack(spacing: 6) {
-                                    Text("解锁悦笺")
+                                    Text("解锁青羽")
                                         .font(.system(size: 17, weight: .semibold))
                                     Text(unlock.product?.displayPrice ?? "¥25")
                                         .font(.system(size: 17, weight: .semibold))

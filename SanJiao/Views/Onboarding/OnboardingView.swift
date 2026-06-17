@@ -31,7 +31,7 @@ struct OnboardingView: View {
                 Spacer(minLength: 42)
 
                 VStack(spacing: 14) {
-                    Text("悦笺")
+                    Text("青羽")
                         .font(.system(size: 48, weight: .bold, design: .rounded))
                         .foregroundStyle(.appPrimary)
                         .tracking(-1)
@@ -51,7 +51,7 @@ struct OnboardingView: View {
                     VStack(spacing: 12) {
                         ForEach(Array(previewAmounts.enumerated()), id: \.offset) { index, amount in
                             previewRow(
-                                emoji: ["🍜", "☕️", "🛒"][index],
+                                emoji: ["🍜", "☕️", "🧺"][index],
                                 title: [String(localized: "餐饮"), String(localized: "咖啡"), String(localized: "日用")][index],
                                 subtitle: [String(localized: "午饭"), String(localized: "下午补给"), String(localized: "顺手买点东西")][index],
                                 amount: amount
@@ -159,12 +159,10 @@ struct OnboardingView: View {
     }
 
     private func previewRow(emoji: String, title: String, subtitle: String, amount: Int) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 14) {
             Text(emoji)
-                .font(.system(size: 24))
-                .frame(width: 42, height: 42)
-                .background(Color.appAccent.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .font(.system(size: 28))
+                .frame(width: 36, alignment: .center)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)

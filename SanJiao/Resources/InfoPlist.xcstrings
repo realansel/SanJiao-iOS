@@ -7,31 +7,53 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Jotsy"
+            "value" : "Quillion"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "悦笺"
+            "value" : "青羽记账"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "悅箋"
+            "value" : "青羽記帳"
           }
         }
       }
     },
     "CFBundleName" : {
       "comment" : "Bundle name",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "YueJian"
+            "state" : "translated",
+            "value" : "青羽记账"
+          }
+        }
+      }
+    },
+    "NSFaceIDUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID is used to unlock Quillion and protect your bookkeeping privacy."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用 Face ID 解锁青羽记账，保护你的账单隐私"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用 Face ID 解鎖青羽記帳，保護你的帳單隱私"
           }
         }
       }
@@ -42,19 +64,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Microphone access is used for voice input of notes."
+            "value" : "Microphone access is used to capture your voice when recording an entry by speaking."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "需要麦克风权限，用于语音输入备注"
+            "value" : "用于语音记账时采集你的说话声音"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "需要麥克風權限，用於語音輸入備註"
+            "value" : "用於語音記帳時擷取你的說話聲音"
           }
         }
       }
@@ -65,19 +87,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Speech recognition is used to turn what you say into note text."
+            "value" : "Speech recognition turns what you say into an entry. Supported devices transcribe on-device; older devices use Apple's speech service."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "需要语音识别权限，将你说的话转换为备注文字"
+            "value" : "把你说的话转写成账目。支持的机型在设备端离线完成；较旧机型会经 Apple 语音服务处理"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "需要語音辨識權限，將你說的話轉換為備註文字"
+            "value" : "把你說的話轉寫成帳目。支援的機型在裝置端離線完成；較舊機型會經 Apple 語音服務處理"
           }
         }
       }

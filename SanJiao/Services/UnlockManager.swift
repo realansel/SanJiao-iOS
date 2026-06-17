@@ -30,7 +30,7 @@ final class UnlockManager {
 
     // ── 配置 ──────────────────────────────────────────────────────────────────
     /// 在 App Store Connect 里创建的非消耗型内购 Product ID，上线前替换此值
-    static let productID = "com.yuezhang.app.unlock"
+    static let productID = "app.qingyu.ios.unlock"
     static let trialDays = 7
 
     // ── State ─────────────────────────────────────────────────────────────────
@@ -81,11 +81,11 @@ final class UnlockManager {
     private func computeTrialState() -> UnlockState {
         // 首次启动日期固化在 Keychain，卸载重装后仍保留
         let firstLaunch: Date
-        if let stored = KeychainHelper.loadDate(key: "yuezhang_first_launch") {
+        if let stored = KeychainHelper.loadDate(key: "qingyu_first_launch") {
             firstLaunch = stored
         } else {
             firstLaunch = Date()
-            KeychainHelper.saveDate(firstLaunch, key: "yuezhang_first_launch")
+            KeychainHelper.saveDate(firstLaunch, key: "qingyu_first_launch")
         }
 
         let cal = Calendar.current
@@ -147,7 +147,7 @@ final class UnlockManager {
     /// 把首次启动日期重置为"今天"——试用从头再来 7 天
     @MainActor
     func debugResetTrial() {
-        KeychainHelper.delete(key: "yuezhang_first_launch")
+        KeychainHelper.delete(key: "qingyu_first_launch")
         state = computeTrialState()
     }
 
@@ -156,7 +156,7 @@ final class UnlockManager {
     @MainActor
     func debugSetTrialStart(daysAgo: Int) {
         let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: Date()) ?? Date()
-        KeychainHelper.saveDate(date, key: "yuezhang_first_launch")
+        KeychainHelper.saveDate(date, key: "qingyu_first_launch")
         state = computeTrialState()
     }
     #endif

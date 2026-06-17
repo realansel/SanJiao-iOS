@@ -6,8 +6,39 @@ private struct DaySection: Identifiable {
     var transactions: [Transaction]
 }
 
+/// 年月对——避开元组类型推断瓶颈（namedtuple 在 SwiftUI 视图里编译极慢）
+struct YearMonth: Hashable {
+    let year: Int
+    let month: Int
+
+    /// 从一组交易中提取出现过的 (年, 月)，总是包含当前年月（即使无数据），按时间倒序。
+    static func availableMonths(from transactions: [Transaction]) -> [YearMonth] {
+        let cal = Calendar.current
+        var seen = Set<String>()
+        var result: [YearMonth] = []
+        for tx in transactions {
+            let comps = cal.dateComponents([.year, .month], from: tx.date)
+            guard let y = comps.year, let m = comps.month else { continue }
+            let key = "\(y)|\(m)"
+            if seen.insert(key).inserted {
+                result.append(YearMonth(year: y, month: m))
+            }
+        }
+        let now = cal.dateComponents([.year, .month], from: Date())
+        if let y = now.year, let m = now.month, !seen.contains("\(y)|\(m)") {
+            result.append(YearMonth(year: y, month: m))
+        }
+        result.sort { a, b in
+            if a.year != b.year { return a.year > b.year }
+            return a.month > b.month
+        }
+        return result
+    }
+}
+
 // 通过 KVO 监听父级 UIScrollView 的 contentOffset，SwiftUI PreferenceKey 在非 Lazy 滚动时不可靠
-private struct ScrollOffsetDetector: UIViewRepresentable {
+// internal 可见性——StatsView 也复用同款滚动探针
+struct ScrollOffsetDetector: UIViewRepresentable {
     @Binding var offset: CGFloat
 
     func makeCoordinator() -> Coordinator { Coordinator(offset: $offset) }
@@ -68,8 +99,8 @@ struct BillView: View {
     @State private var filterWeeks: Set<Int>         = []
     @State private var filterCategories: Set<String> = []
     @State private var showFilterSheet              = false
+    @State private var showMonthPicker               = false
     @State private var billScrollOffset: CGFloat     = 0     // UIScrollView contentOffset.y，向下滚动时增大
-    @State private var footerVisible                 = false
 
     // MARK: Derived
 
@@ -147,6 +178,9 @@ struct BillView: View {
                viewMonth == Calendar.current.component(.month, from: now)
     }
 
+    /// 头部塌缩阈值——和 StatsView 保持一致
+    private var isHeaderCollapsed: Bool { billScrollOffset > 80 }
+
     // All IDs visible after filtering (for "全选")
     private var allMonthIDs: Set<UUID> { Set(filteredMonthTransactions.map(\.id)) }
     private var allSelected: Bool { !allMonthIDs.isEmpty && allMonthIDs.isSubset(of: selectedIDs) }
@@ -155,47 +189,32 @@ struct BillView: View {
 
     var body: some View {
         NavigationStack {
-            GeometryReader { rootGeo in
-                ScrollViewReader { proxy in
-                    ZStack(alignment: .bottomTrailing) {
-                        ScrollView {
-                            VStack(alignment: .leading, spacing: 0) {
-                                // KVO 探针：零高度，放在内容最顶部，用于监听 UIScrollView 滚动
-                                ScrollOffsetDetector(offset: $billScrollOffset)
-                                    .frame(height: 0)
-                                    .id("bill-top")
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    // KVO 探针：零高度，放在内容最顶部，监听 UIScrollView 滚动
+                    ScrollOffsetDetector(offset: $billScrollOffset)
+                        .frame(height: 0)
 
-                                header
-                                summaryCards
-                                transactionList
-                                footerNote
-                            }
-                        }
-
-                        if showScrollToTopButton {
-                            Button {
-                                withAnimation(.easeInOut(duration: 0.25)) {
-                                    proxy.scrollTo("bill-top", anchor: .top)
-                                }
-                            } label: {
-                                Image(systemName: "arrow.up")
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundStyle(.white.opacity(0.9))
-                                    .frame(width: 44, height: 44)
-                                    .background(Color.appAccent.opacity(0.55))
-                                    .clipShape(Circle())
-                                    .shadow(color: Color.black.opacity(0.08), radius: 8, y: 4)
-                            }
-                            .padding(.trailing, 16)
-                            .padding(.bottom, isSelecting ? 84 : rootGeo.safeAreaInsets.bottom + 28)
-                            .transition(.move(edge: .trailing).combined(with: .opacity))
-                        }
-                    }
-                    .animation(.easeInOut(duration: 0.2), value: showScrollToTopButton)
+                    header
+                        .opacity(isHeaderCollapsed ? 0 : 1)
+                        .frame(maxHeight: isHeaderCollapsed ? 0 : nil, alignment: .top)
+                        .clipped()
+                        .animation(.easeInOut(duration: 0.18), value: isHeaderCollapsed)
+                    summaryCards
+                    transactionList
                 }
             }
             .background(Color.appBg)
-            .navigationBarHidden(true)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(Color.appBg, for: .navigationBar)
+            .toolbarBackground(isHeaderCollapsed ? .visible : .hidden, for: .navigationBar)
+            .toolbar {
+                if isHeaderCollapsed && !isSelecting {
+                    ToolbarItem(placement: .principal) {
+                        compactStickyBar
+                    }
+                }
+            }
             // Batch toolbar floats above bottom edge of scroll view
             .safeAreaInset(edge: .bottom) {
                 if isSelecting { batchToolbar }
@@ -225,12 +244,27 @@ struct BillView: View {
                 weekRangeLabel:      weekRangeLabel
             )
         }
+        .sheet(isPresented: $showMonthPicker) {
+            MonthPickerSheet(
+                year: $viewYear,
+                month: $viewMonth,
+                availableMonths: availableYearMonths
+            )
+            .presentationDetents([.height(330)])
+            .presentationDragIndicator(.visible)
+        }
+    }
+
+    /// 所有有交易记录的年/月——给月份选择器用，避免用户选到全空的月份
+    private var availableYearMonths: [YearMonth] {
+        YearMonth.availableMonths(from: allTransactions)
     }
 
     // MARK: - Sub-views
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 14) {
+            // Row 1：标题 + 右上角操作（筛选 / 完成选择）
             HStack {
                 Text("账单")
                     .font(.system(size: 28, weight: .bold))
@@ -241,27 +275,37 @@ struct BillView: View {
                     Button("完成") { withAnimation { exitSelectMode() } }
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(.appAccent)
-                }
-            }
-
-            HStack(spacing: 12) {
-                navButton(icon: "‹") { changeMonth(-1) }
-                Text("\(String(viewYear))年\(viewMonth)月")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(.appPrimary)
-                navButton(icon: "›", disabled: isCurrentMonth) { changeMonth(1) }
-                Spacer()
-                // Filter button — only visible outside select mode and when there's data
-                if !isSelecting && !monthTransactions.isEmpty {
-                    Button { showFilterSheet = true } label: {
-                        ZStack(alignment: .topTrailing) {
-                            Image(systemName: "line.3.horizontal.decrease.circle\(isFiltering ? ".fill" : "")")
-                                .font(.system(size: 22))
-                                .foregroundStyle(isFiltering ? Color.appAccent : Color.appSecondary)
-                        }
+                } else if !monthTransactions.isEmpty {
+                    Button {
+                        showFilterSheet = true
+                    } label: {
+                        Image(systemName: "slider.horizontal.3")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundStyle(isFiltering ? Color.appAccent : Color.appSecondary)
                     }
                     .buttonStyle(.plain)
                 }
+            }
+
+            // Row 2：月份切换——chevron 内联文字两侧；点中间月份文字弹出年月选择器
+            HStack(spacing: 10) {
+                monthChevron(systemName: "chevron.left", disabled: false) { changeMonth(-1) }
+                Button {
+                    showMonthPicker = true
+                } label: {
+                    HStack(spacing: 4) {
+                        Text("\(String(viewYear))年\(viewMonth)月")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundStyle(.appPrimary)
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(.appTertiary)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                monthChevron(systemName: "chevron.right", disabled: isCurrentMonth) { changeMonth(1) }
+                Spacer()
             }
         }
         .padding(.horizontal, 24)
@@ -271,12 +315,16 @@ struct BillView: View {
 
     private var summaryCards: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 10) {
-                SumCard(label: "支出", amount: displayExpense, color: .appPrimary)
-                SumCard(label: "收入", amount: displayIncome,  color: .appGreen)
-                SumCard(label: "结余", amount: displayIncome - displayExpense, color: .appAccent)
+            // Inline 3 列数据——不再是 3 张卡片，列间用细分隔线
+            HStack(spacing: 0) {
+                summaryCell(label: "支出", amount: displayExpense, color: .appPrimary)
+                summaryDivider
+                summaryCell(label: "收入", amount: displayIncome, color: .appGreen)
+                summaryDivider
+                summaryCell(label: "结余", amount: displayIncome - displayExpense, color: balanceColor)
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 4)
 
             // Active filter indicator
             if isFiltering {
@@ -292,19 +340,43 @@ struct BillView: View {
                         .font(.system(size: 12))
                         .foregroundStyle(.appTertiary)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
+                .padding(.horizontal, 24)
+                .padding(.top, 12)
                 .padding(.bottom, 2)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
         .animation(.easeInOut(duration: 0.2), value: isFiltering)
-        .padding(.bottom, 8)
+        .padding(.bottom, 12)
     }
 
-    // contentOffset.y > 80 表示已向下滚动超过 80pt，顶部内容滚出了可视区
-    private var showScrollToTopButton: Bool {
-        billScrollOffset > 80
+    /// 结余颜色：> 0 黑色（中性盈余）；< 0 橙色（柔性赤字警示）；= 0 灰
+    private var balanceColor: Color {
+        let balance = displayIncome - displayExpense
+        if balance < 0 { return .appOrange }
+        if balance > 0 { return .appPrimary }
+        return .appSecondary
+    }
+
+    private func summaryCell(label: LocalizedStringKey, amount: Double, color: Color) -> some View {
+        VStack(spacing: 4) {
+            Text(label)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.appSecondary)
+            Text("¥\(Int(amount).formatted())")
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(color)
+                .tracking(-0.3)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var summaryDivider: some View {
+        Rectangle()
+            .fill(Color.appSeparator.opacity(0.6))
+            .frame(width: 0.5, height: 28)
     }
 
     private var activeFilterDescription: String {
@@ -352,17 +424,6 @@ struct BillView: View {
                 )
             }
         }
-    }
-
-    private var footerNote: some View {
-        Text("数据仅存储在本设备  ·  私密安全")
-            .font(.system(size: 10))
-            .foregroundStyle(.appTertiary)
-            .frame(maxWidth: .infinity)
-            .padding(.top, 4)
-            .padding(.bottom, 12)
-            .onAppear { footerVisible = true }
-            .onDisappear { footerVisible = false }
     }
 
     // MARK: - Batch toolbar
@@ -462,42 +523,62 @@ struct BillView: View {
     }
 
     @ViewBuilder
-    private func navButton(icon: String, disabled: Bool = false, action: @escaping () -> Void) -> some View {
+    private func monthChevron(systemName: String, disabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(icon)
-                .font(.system(size: 14))
-                .foregroundStyle(disabled ? .appTertiary : .appSecondary)
-                .frame(width: 30, height: 30)
-                .background(Color.appSeparator)
-                .clipShape(Circle())
+            Image(systemName: systemName)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(disabled ? .appTertiary.opacity(0.5) : .appSecondary)
+                .frame(width: 24, height: 24)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .disabled(disabled)
     }
-}
 
-// MARK: - Summary card
-
-struct SumCard: View {
-    let label: LocalizedStringKey
-    let amount: Double
-    let color: Color
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(label)
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(.appSecondary)
-            Text("¥\(Int(amount).formatted())")
-                .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(color)
-                .tracking(-0.5)
+    /// 滚动后塞进 nav bar 的紧凑头——保留月份切换 + 筛选入口
+    private var compactStickyBar: some View {
+        HStack(spacing: 10) {
+            HStack(spacing: 6) {
+                compactChevron(systemName: "chevron.left", disabled: false) { changeMonth(-1) }
+                Button {
+                    showMonthPicker = true
+                } label: {
+                    HStack(spacing: 3) {
+                        Text("\(String(viewYear))·\(viewMonth)月")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(.appPrimary)
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(.appTertiary)
+                    }
+                }
+                .buttonStyle(.plain)
+                compactChevron(systemName: "chevron.right", disabled: isCurrentMonth) { changeMonth(1) }
+            }
+            Spacer(minLength: 4)
+            if !monthTransactions.isEmpty {
+                Button { showFilterSheet = true } label: {
+                    Image(systemName: "slider.horizontal.3")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(isFiltering ? Color.appAccent : Color.appSecondary)
+                        .frame(width: 24, height: 24)
+                }
+                .buttonStyle(.plain)
+            }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.appCard)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .frame(maxWidth: .infinity)
+    }
+
+    private func compactChevron(systemName: String, disabled: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(disabled ? .appTertiary.opacity(0.5) : .appSecondary)
+                .frame(width: 20, height: 20)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(disabled)
     }
 }
 
@@ -607,31 +688,34 @@ struct BillFilterSheet: View {
         _draftCategories = State(initialValue: filterCategories.wrappedValue)
     }
 
+    private var hasActiveDraft: Bool { !draftWeeks.isEmpty || !draftCategories.isEmpty }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 28) {
-                    // --- 按周 ---
+                    // --- 按周（单选）---
                     if !availableWeeks.isEmpty {
-                        filterSection(title: "按周") {
+                        filterSection(title: "按周", caption: "单选") {
                             chipGrid {
                                 ForEach(availableWeeks, id: \.self) { week in
-                                    chip(title: weekRangeLabel(week),
-                                         active: draftWeeks.contains(week)) {
-                                        toggleWeek(week)
+                                    weekChip(title: weekRangeLabel(week),
+                                             active: draftWeeks.contains(week)) {
+                                        selectWeek(week)
                                     }
                                 }
                             }
                         }
                     }
 
-                    // --- 按分类 ---
+                    // --- 按分类（可多选）---
                     if !availableCategories.isEmpty {
-                        filterSection(title: "按分类") {
+                        filterSection(title: "按分类", caption: "可多选") {
                             chipGrid {
                                 ForEach(availableCategories, id: \.name) { cat in
-                                    chip(title: "\(cat.emoji) \(cat.name.localizedCategoryName)",
-                                         active: draftCategories.contains(cat.name)) {
+                                    categoryChip(emoji: cat.emoji,
+                                                 name: cat.name,
+                                                 active: draftCategories.contains(cat.name)) {
                                         toggleCategory(cat.name)
                                     }
                                 }
@@ -639,19 +723,27 @@ struct BillFilterSheet: View {
                         }
                     }
                 }
-                .padding(20)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+                .padding(.bottom, 24)
             }
             .background(Color.appBg)
             .navigationTitle("筛选")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("重置") {
-                        filterWeeks = []
-                        filterCategories = []
-                        dismiss()
+                    Button("取消") { dismiss() }
+                        .foregroundStyle(.appSecondary)
+                }
+                ToolbarItem(placement: .principal) {
+                    if hasActiveDraft {
+                        Button("清除全部") {
+                            draftWeeks = []
+                            draftCategories = []
+                        }
+                        .font(.system(size: 13))
+                        .foregroundStyle(.appTertiary)
                     }
-                    .foregroundStyle(.appTertiary)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("应用") {
@@ -668,43 +760,82 @@ struct BillFilterSheet: View {
         .presentationDragIndicator(.visible)
     }
 
-    // MARK: - Helpers
+    // MARK: - Sections / chips
 
     @ViewBuilder
-    private func filterSection<Content: View>(title: LocalizedStringKey, @ViewBuilder content: () -> Content) -> some View {
+    private func filterSection<Content: View>(title: LocalizedStringKey, caption: LocalizedStringKey, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(title)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(.appSecondary)
-                .textCase(.uppercase)
-                .tracking(0.4)
+            HStack(spacing: 6) {
+                Text(title)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.appSecondary)
+                    .textCase(.uppercase)
+                    .tracking(0.4)
+                Text(caption)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.appTertiary)
+            }
             content()
         }
     }
 
     @ViewBuilder
     private func chipGrid<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        // Wrap chips in a flowing layout via LazyVGrid
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: 10)],
                   alignment: .leading, spacing: 10) {
             content()
         }
     }
 
+    /// 按周 chip — 单选语义，圆角矩形（visually 区别于按分类的胶囊）
     @ViewBuilder
-    private func chip(title: String, active: Bool, action: @escaping () -> Void) -> some View {
+    private func weekChip(title: String, active: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 14, weight: active ? .semibold : .regular))
                 .foregroundStyle(active ? .white : Color.appSecondary)
                 .padding(.horizontal, 14)
-                .padding(.vertical, 8)
+                .padding(.vertical, 9)
                 .frame(maxWidth: .infinity)
                 .background(active ? Color.appAccent : Color.appCard)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
         .animation(.easeInOut(duration: 0.15), value: active)
+    }
+
+    /// 按分类 chip — 可多选语义，胶囊形 + 选中态紫色描边 + 浅紫底（更明显的"勾选"感）
+    @ViewBuilder
+    private func categoryChip(emoji: String, name: String, active: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Text(emoji).font(.system(size: 16))
+                Text(name.localizedCategoryName)
+                    .font(.system(size: 14, weight: active ? .semibold : .regular))
+                    .foregroundStyle(active ? .appAccent : .appPrimary)
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity)
+            .background(active ? Color.appAccentSoft.opacity(0.55) : Color.appCard)
+            .clipShape(Capsule())
+            .overlay(
+                Capsule()
+                    .strokeBorder(active ? Color.appAccent : Color.clear, lineWidth: 1.2)
+            )
+        }
+        .buttonStyle(.plain)
+        .animation(.easeInOut(duration: 0.15), value: active)
+    }
+
+    /// 周筛选——单选：点已选清空，点新的替换
+    private func selectWeek(_ week: Int) {
+        if draftWeeks.contains(week) {
+            draftWeeks.removeAll()
+        } else {
+            draftWeeks = [week]
+        }
     }
 
     private func toggleWeek(_ week: Int) {
@@ -721,5 +852,141 @@ struct BillFilterSheet: View {
         } else {
             draftCategories.insert(category)
         }
+    }
+}
+
+// MARK: - Month picker sheet
+
+/// 年 + 月双滚轮选择器——参照 iOS Timer / DatePicker 的 wheel 样式。
+/// 两个独立 wheel 平行排列，年范围动态取（数据最早年份 vs current-9）的较小者，
+/// 始终至少展示 10 年；用户翻到未来时，"完成"自动 clamp 回当前月。
+struct MonthPickerSheet: View {
+    @Binding var year: Int
+    @Binding var month: Int
+    let availableMonths: [YearMonth]
+
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var draftYear: Int
+    @State private var draftMonth: Int
+
+    init(year: Binding<Int>, month: Binding<Int>, availableMonths: [YearMonth]) {
+        _year = year
+        _month = month
+        self.availableMonths = availableMonths
+        _draftYear  = State(initialValue: year.wrappedValue)
+        _draftMonth = State(initialValue: month.wrappedValue)
+    }
+
+    private var nowYM: YearMonth {
+        let c = Calendar.current.dateComponents([.year, .month], from: Date())
+        return YearMonth(year: c.year ?? 2024, month: c.month ?? 1)
+    }
+
+    /// 年份滚轮的取值——只展示有数据的年份；总是包含当前年（即使无数据，让用户能回来）。
+    private var yearOptions: [Int] {
+        var years = Set(availableMonths.map(\.year))
+        years.insert(nowYM.year)
+        return years.sorted(by: >)
+    }
+
+    /// 当前 draftYear 下的月份选项——只显示该年有数据的月份；
+    /// 当前年额外保证包含当前月（即使本月无数据，让用户能回到"现在"），且过滤未来月。
+    private var monthOptions: [Int] {
+        let dataMonths = Set(
+            availableMonths
+                .filter { $0.year == draftYear }
+                .map(\.month)
+        )
+        if draftYear == nowYM.year {
+            var months = dataMonths
+            months.insert(nowYM.month)
+            return months.filter { $0 <= nowYM.month }.sorted()
+        }
+        return dataMonths.sorted()
+    }
+
+    private var hasFutureDraft: Bool {
+        let now = nowYM
+        return draftYear > now.year || (draftYear == now.year && draftMonth > now.month)
+    }
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    Picker("Year", selection: $draftYear) {
+                        ForEach(yearOptions, id: \.self) { y in
+                            Text(verbatim: "\(y) 年")
+                                .font(.system(size: 20, weight: .regular))
+                                .tag(y)
+                        }
+                    }
+                    .pickerStyle(.wheel)
+                    .frame(maxWidth: .infinity)
+
+                    Picker("Month", selection: $draftMonth) {
+                        ForEach(monthOptions, id: \.self) { m in
+                            Text("\(m) 月")
+                                .font(.system(size: 20, weight: .regular))
+                                .tag(m)
+                        }
+                    }
+                    .pickerStyle(.wheel)
+                    .frame(maxWidth: .infinity)
+                }
+                .frame(height: 200)
+                .onChange(of: draftYear) { _, _ in
+                    // 切换年后，若当前月不在该年的可选范围，clamp 到时间上最近的一个月（双向对称）。
+                    guard !monthOptions.contains(draftMonth), !monthOptions.isEmpty else { return }
+                    let target = draftMonth
+                    draftMonth = monthOptions.min(by: { abs($0 - target) < abs($1 - target) }) ?? monthOptions[0]
+                }
+
+                // 跳到当前月份的快捷链接——iOS DatePicker 也有 "Today"
+                Button {
+                    let now = nowYM
+                    withAnimation { draftYear = now.year; draftMonth = now.month }
+                } label: {
+                    Text("跳到本月")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(.appAccent)
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 16)
+                }
+                .buttonStyle(.plain)
+                .opacity((draftYear == nowYM.year && draftMonth == nowYM.month) ? 0 : 1)
+                .padding(.bottom, 8)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.appBg)
+            .navigationTitle("选择月份")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(Color.appBg, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("取消") { dismiss() }
+                        .foregroundStyle(.appSecondary)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("完成") {
+                        // 选到未来 → clamp 回当前月
+                        if hasFutureDraft {
+                            let now = nowYM
+                            year = now.year
+                            month = now.month
+                        } else {
+                            year = draftYear
+                            month = draftMonth
+                        }
+                        dismiss()
+                    }
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.appAccent)
+                }
+            }
+        }
+        .presentationBackground(Color.appBg)
     }
 }

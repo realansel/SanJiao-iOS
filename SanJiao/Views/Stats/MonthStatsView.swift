@@ -78,13 +78,9 @@ struct MonthStatsView: View {
                 $0.date >= periodStart && $0.date < periodEndNext
             }.reduce(0) { $0 + $1.absoluteAmount }
 
-            let label: String
-            switch i {
-            case 5: label = isNow ? String(localized: "本周") : String(localized: "当周")
-            case 4: label = isNow ? String(localized: "上周") : String(localized: "前周")
-            default: label = f.string(from: periodEnd)
-            }
-
+            // 6 个柱标签全部用日期格式（M/d），避免「日期 + 上周/本周」混搭——
+            // 信息精度统一，且月初月末时"上周/本周"会有歧义
+            let label = f.string(from: periodEnd)
             let detailLabel = "\(f.string(from: periodStart)) ~ \(f.string(from: periodEnd))"
 
             return BarItem(label: label, amount: amount,
@@ -154,17 +150,7 @@ struct MonthStatsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Month navigator
-            HStack(spacing: 12) {
-                navBtn(disabled: false) { appState.changeStatsMonth(-1) }
-                Text("\(String(appState.statsMonthYear))年\(appState.statsMonthMo)月")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(.appPrimary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                navBtn(isNext: true, disabled: isNow) { appState.changeStatsMonth(1) }
-            }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 12)
+            // Month nav 已上移到 StatsView 统一管理（支持滚动后塌缩进 nav bar）
 
             if monthTx.isEmpty {
                 // 本月无数据：展示空状态（与账单/统计页保持一致）
@@ -185,30 +171,9 @@ struct MonthStatsView: View {
                 .padding(.vertical, 60)
                 .padding(.horizontal, 24)
             } else {
-                // Donut + legend
-                HStack(spacing: 24) {
-                    DonutChart(
-                        segments: categoryBreakdown.enumerated().map { (i, item) in (item.amount, donutColor(idx: i)) },
-                        centerText: "¥\(Int(totalExpense).formatted())",
-                        centerLabel: isNow ? String(localized: "本月支出") : String(localized: "\(appState.statsMonthMo)月支出")
-                    )
-                    .frame(width: 110, height: 110)
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        ForEach(Array(categoryBreakdown.enumerated()), id: \.offset) { i, item in
-                            HStack(spacing: 8) {
-                                Circle().fill(donutColor(idx: i)).frame(width: 10, height: 10)
-                                Text(item.name.localizedCategoryName).font(.system(size: 13)).foregroundStyle(.appSecondary).frame(maxWidth: .infinity, alignment: .leading)
-                                Text("\(Int(item.pct * 100))%").font(.system(size: 13, weight: .semibold)).foregroundStyle(.appPrimary)
-                            }
-                        }
-                    }
-                }
-                .padding(24)
-                .background(Color.appCard)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-                .padding(.horizontal, 16)
-                .padding(.bottom, 12)
+                summaryCard
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
 
                 // 6-week bar chart
                 BarChartCard(title: String(localized: "近 6 周支出趋势"), bars: sixWeekBars)
@@ -238,8 +203,7 @@ struct MonthStatsView: View {
                     FreqSpendingCard(
                         items: freqCategories,
                         total: freqTotal,
-                        badgeText: String(localized: "这个月常出现"),
-                        distributionTitle: String(localized: "月内分布")
+                        badgeText: String(localized: "这个月常出现")
                     )
                     .id(StatsScrollTarget.frequentSpending.rawValue)
                     .padding(.horizontal, 16).padding(.bottom, 12)
@@ -250,25 +214,56 @@ struct MonthStatsView: View {
         }
     }
 
+    /// 圆环段颜色——和「支出最多」「高频消费」bar 同款 rank 梯度：
+    /// 排名靠前饱和，后续递减。强化品牌紫，避免 Excel 默认配色感。
     private func donutColor(idx: Int) -> Color {
-        let colors: [Color] = [.appAccent, Color(hex: "FF9F0A"), Color(hex: "34C759"), Color(hex: "FF3B30"), Color(hex: "AEAEB2")]
-        return colors[idx % colors.count]
+        switch idx {
+        case 0:  return .appAccent
+        case 1:  return .appAccent.opacity(0.70)
+        case 2:  return .appAccent.opacity(0.50)
+        case 3:  return .appAccent.opacity(0.38)
+        default: return .appAccent.opacity(0.26)
+        }
     }
 
-    @ViewBuilder
-    private func navBtn(isNext: Bool = false, disabled: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(isNext ? "›" : "‹")
-                .font(.system(size: 14))
-                .foregroundStyle(disabled ? .appTertiary : .appSecondary)
-                .frame(width: 30, height: 30)
-                .background(Color.appSeparator)
-                .clipShape(Circle())
-        }
-        .buttonStyle(.plain)
-        .disabled(disabled)
-        .opacity(disabled ? 0.3 : 1)
+    private var amountLabel: String {
+        isNow ? String(localized: "本月支出") : String(localized: "\(appState.statsMonthMo)月支出")
     }
+
+    /// 月汇总卡：donut + legend，保持统一布局
+    private var summaryCard: some View {
+        HStack(spacing: 24) {
+            DonutChart(
+                segments: categoryBreakdown.enumerated().map { (i, item) in (item.amount, donutColor(idx: i)) },
+                centerText: "¥\(Int(totalExpense).formatted())",
+                centerLabel: amountLabel
+            )
+            .frame(width: 110, height: 110)
+
+            VStack(alignment: .leading, spacing: 10) {
+                ForEach(Array(categoryBreakdown.enumerated()), id: \.offset) { i, item in
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(donutColor(idx: i))
+                            .frame(width: 9, height: 9)
+                        Text(item.name.localizedCategoryName)
+                            .font(.system(size: 13))
+                            .foregroundStyle(.appSecondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .lineLimit(1)
+                        Text("\(Int(item.pct * 100))%")
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundStyle(.appSecondary)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(24)
+        .background(Color.appCard)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
 }
 
 // MARK: - Shared chart components
@@ -298,13 +293,15 @@ struct DonutChart: View {
             }
         }
         .overlay {
-            VStack(spacing: 2) {
+            VStack(spacing: 3) {
                 Text(centerText)
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.system(size: 19, weight: .bold, design: .rounded))
                     .foregroundStyle(.appPrimary)
                     .tracking(-0.5)
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
                 Text(centerLabel)
-                    .font(.system(size: 10))
+                    .font(.system(size: 11))
                     .foregroundStyle(.appSecondary)
             }
         }
@@ -332,11 +329,12 @@ struct BarChartCard: View {
 
     @State private var selectedIndex: Int? = nil
 
+    private var chartBarMaxHeight: CGFloat { 130 }
     private var maxAmount: Double { bars.filter { !$0.isFuture }.map(\.amount).max() ?? 1 }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // 标题行：选中时右侧显示该期金额
+        VStack(alignment: .leading, spacing: 24) {
+            // 标题行：选中时右侧显示该期金额——和频次分析 chart 同款 baseline 对齐
             HStack(alignment: .firstTextBaseline) {
                 Text(title)
                     .font(.system(size: 15, weight: .semibold))
@@ -346,27 +344,43 @@ struct BarChartCard: View {
                     HStack(spacing: 4) {
                         Text(bar.detailLabel)
                             .font(.system(size: 12))
-                            .foregroundStyle(.appSecondary)
+                            .foregroundStyle(.appPrimary)
                         Text("¥\(Int(bar.amount).formatted())")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(.appAccent)
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .foregroundStyle(.appTeal)
                     }
                     .transition(.opacity.combined(with: .move(edge: .trailing)))
                 }
             }
             .animation(.easeInOut(duration: 0.18), value: selectedIndex)
 
-            HStack(alignment: .bottom, spacing: 6) {
+            HStack(alignment: .bottom, spacing: 14) {
                 ForEach(bars.indices, id: \.self) { i in
-                    VStack(spacing: 6) {
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(barColor(bars[i], selected: selectedIndex == i))
-                            .frame(height: barHeight(bars[i]))
-                            .scaleEffect(y: selectedIndex == i ? 1.06 : 1, anchor: .bottom)
-                            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: selectedIndex)
+                    VStack(spacing: 8) {
+                        // 柱子区——只在 0 值时显示 baseline，避免 6 个柱底连成视觉分割线
+                        ZStack(alignment: .bottom) {
+                            if bars[i].amount > 0 && !bars[i].isFuture {
+                                Capsule()
+                                    .fill(barColor(bars[i], selected: selectedIndex == i))
+                                    .frame(height: barHeight(bars[i]))
+                                    .scaleEffect(y: selectedIndex == i ? 1.04 : 1, anchor: .bottom)
+                                    .animation(.spring(response: 0.25, dampingFraction: 0.7), value: selectedIndex)
+                            } else {
+                                // 仅 0 值时显示 baseline，传达"这周存在但无支出"
+                                RoundedRectangle(cornerRadius: 1.5)
+                                    .fill(Color.appSeparator.opacity(0.6))
+                                    .frame(height: 3)
+                            }
+                        }
+                        // 限制柱子最大宽度——保持纤细比例
+                        .frame(maxWidth: 32)
+                        .frame(height: chartBarMaxHeight, alignment: .bottom)
+
                         Text(bars[i].label)
-                            .font(.system(size: 10, weight: selectedIndex == i ? .bold : .medium))
-                            .foregroundStyle(selectedIndex == i ? Color.appAccent : Color.appTertiary)
+                            .font(.system(size: 12, weight: selectedIndex == i ? .semibold : .medium))
+                            .foregroundStyle(selectedIndex == i ? Color.appAccent : Color.appSecondary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.85)
                     }
                     .frame(maxWidth: .infinity)
                     .contentShape(Rectangle())
@@ -377,7 +391,6 @@ struct BarChartCard: View {
                     }
                 }
             }
-            .frame(height: 108, alignment: .bottom)
         }
         .padding(20)
         .background(Color.appCard)
@@ -385,15 +398,18 @@ struct BarChartCard: View {
     }
 
     private func barColor(_ bar: BarItem, selected: Bool) -> Color {
-        if bar.isFuture { return Color.appSeparator.opacity(0.5) }
-        if selected     { return Color.appAccent }
+        if bar.isFuture  { return Color.appSeparator.opacity(0.5) }
+        if selected      { return Color.appAccent }
         if bar.isCurrent { return Color.appAccent.opacity(0.75) }
-        return Color.appAccentSoft
+        return Color.appAccent.opacity(0.32)
     }
 
+    /// 柱高——sqrt 缩放放大小值，让"很少花"的周也能看出趋势；
+    /// 和频次分析 chart 同款算法（差异：max 130pt 而非 170pt，因为这里是 at-a-glance）。
     private func barHeight(_ bar: BarItem) -> CGFloat {
-        if bar.isFuture { return 4 }
-        return maxAmount > 0 ? max(CGFloat(bar.amount / maxAmount) * 80, 4) : 4
+        guard !bar.isFuture, bar.amount > 0, maxAmount > 0 else { return 0 }
+        let normalized = sqrt(bar.amount / maxAmount)
+        return max(CGFloat(normalized) * chartBarMaxHeight, 6)
     }
 }
 
@@ -403,6 +419,16 @@ struct TopCategoriesCard: View {
 
     private var maxAmount: Double { items.map { $0.amount }.max() ?? 1 }
 
+    /// 排名→bar 颜色：第 1 主色饱和，后续递减。视觉上即时传达"哪个最重"。
+    private func barColor(rank: Int) -> Color {
+        switch rank {
+        case 0:  return .appAccent
+        case 1:  return .appAccent.opacity(0.65)
+        case 2:  return .appAccent.opacity(0.4)
+        default: return .appSeparator
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(title)
@@ -410,46 +436,54 @@ struct TopCategoriesCard: View {
                 .foregroundStyle(.appPrimary)
                 .padding(.horizontal, 16)
                 .padding(.top, 16)
-                .padding(.bottom, 8)
+                .padding(.bottom, 10)
 
             ForEach(items.indices, id: \.self) { i in
-                if i > 0 { Divider().padding(.leading, 68) }
-                HStack(spacing: 12) {
-                    Text("\(i + 1)")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(.appTertiary)
-                        .frame(width: 16, alignment: .center)
-                    Text(items[i].emoji)
-                        .font(.system(size: 18))
-                        .frame(width: 36, height: 36)
-                        .background(Color.appBg)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                    VStack(alignment: .leading, spacing: 4) {
+                if i > 0 {
+                    Rectangle()
+                        .fill(Color.appSeparator.opacity(0.6))
+                        .frame(height: 0.5)
+                        .padding(.leading, 60)
+                }
+                VStack(alignment: .leading, spacing: 7) {
+                    // Row 1: emoji + name + amount
+                    HStack(spacing: 12) {
+                        Text(items[i].emoji)
+                            .font(.system(size: 24))
+                            .frame(width: 32, alignment: .center)
                         Text(items[i].name.localizedCategoryName)
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(.appPrimary)
                             .lineLimit(1)
-                        HStack(spacing: 8) {
-                            GeometryReader { geo in
-                                ZStack(alignment: .leading) {
-                                    RoundedRectangle(cornerRadius: 2).fill(Color.appSeparator).frame(height: 3)
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .fill(i == 0 ? Color.appAccent : i == 1 ? Color.appTertiary : Color(hex: "C7C7CC"))
-                                        .frame(width: geo.size.width * CGFloat(items[i].amount / maxAmount), height: 3)
-                                }
-                            }.frame(height: 3)
-                            Text("\(Int(items[i].pct * 100))%")
-                                .font(.system(size: 11))
-                                .foregroundStyle(.appSecondary)
-                                .frame(width: 28, alignment: .trailing)
-                        }
+                        Spacer(minLength: 8)
+                        Text("¥\(Int(items[i].amount).formatted())")
+                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .foregroundStyle(.appPrimary)
                     }
-                    Text("¥\(Int(items[i].amount).formatted())")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.appPrimary)
+
+                    // Row 2: bar + 百分比，缩进对齐名字
+                    HStack(spacing: 10) {
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                Capsule()
+                                    .fill(Color.appSeparator.opacity(0.7))
+                                    .frame(height: 5)
+                                Capsule()
+                                    .fill(barColor(rank: i))
+                                    .frame(width: max(geo.size.width * CGFloat(items[i].amount / maxAmount), 4),
+                                           height: 5)
+                            }
+                        }
+                        .frame(height: 5)
+                        Text("\(Int(items[i].pct * 100))%")
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundStyle(.appSecondary)
+                            .frame(width: 36, alignment: .trailing)
+                    }
+                    .padding(.leading, 44)
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 10)
+                .padding(.vertical, 11)
             }
         }
         .background(Color.appCard)
@@ -483,49 +517,45 @@ struct BigTransactionsCard: View {
     }
 
     @State private var activeSheet: ActiveSheet?
-    @State private var editNameTx: Transaction?
-    @State private var editNameText = ""
     @State private var editAmountTx: Transaction?
     @State private var editAmountText = ""
+    @State private var editDateTx: Transaction?
     @State private var deleteCandidateTx: Transaction?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Header
+            // Header——和「支出最多 / 高频消费」对齐：单行标题 + 可选右元素
             HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("大额消费")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(.appPrimary)
-                    Text("单笔超 ¥\(Int(threshold)) · 占本月 \(formatPercent(thresholdPercent))+")
-                        .font(.system(size: 11))
-                        .foregroundStyle(.appTertiary)
-                }
+                Text("大额消费")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(.appPrimary)
                 Spacer()
-                HStack(spacing: 8) {
-                    Text("共 \(allTransactions.count) 笔")
-                        .font(.system(size: 12))
+                Text("单笔超 ¥\(Int(threshold))")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.appTertiary)
+                Button {
+                    activeSheet = .thresholdSettings
+                } label: {
+                    Image(systemName: "slider.horizontal.3")
+                        .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(.appTertiary)
-                    Button {
-                        activeSheet = .thresholdSettings
-                    } label: {
-                        Image(systemName: "gearshape")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(.appTertiary)
-                            .frame(width: 28, height: 28)
-                            .background(Color.appBg)
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("调整大额消费线")
+                        .frame(width: 24, height: 24)
+                        .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
+                .accessibilityLabel("调整大额消费线")
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)
             .padding(.bottom, 10)
 
             ForEach(transactions, id: \.id) { tx in
-                if tx.id != transactions.first?.id { Divider().padding(.leading, 68) }
+                if tx.id != transactions.first?.id {
+                    Rectangle()
+                        .fill(Color.appSeparator.opacity(0.6))
+                        .frame(height: 0.5)
+                        .padding(.leading, 60)
+                }
                 bigTxRow(tx)
             }
 
@@ -562,18 +592,18 @@ struct BigTransactionsCard: View {
                 )
             case .thresholdSettings:
                 BigTransactionThresholdSheet(thresholdPercent: $thresholdPercent)
-                    .presentationDetents([.height(360)])
+                    .presentationDetents([.height(260)])
                     .presentationDragIndicator(.visible)
             case .actionMenu(let tx):
                 TransactionActionSheet(
                     tx: tx,
-                    onEditName: {
-                        activeSheet = nil
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                            editNameText = tx.name
-                            editNameTx = tx
+                    isRefunded: Binding(
+                        get: { tx.isRefunded },
+                        set: { newValue in
+                            tx.isRefunded = newValue
+                            try? context.save()
                         }
-                    },
+                    ),
                     onEditAmount: {
                         activeSheet = nil
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
@@ -587,7 +617,12 @@ struct BigTransactionsCard: View {
                             activeSheet = .categoryPicker(tx)
                         }
                     },
-                    onToggleRefund: { toggleRefund(tx) },
+                    onEditDate: {
+                        activeSheet = nil
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                            editDateTx = tx
+                        }
+                    },
                     onDelete: {
                         activeSheet = nil
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
@@ -595,9 +630,10 @@ struct BigTransactionsCard: View {
                         }
                     }
                 )
-                .presentationDetents([.height(430)])
-                .presentationDragIndicator(.hidden)
+                .presentationDetents([.height(380)])
+                .presentationDragIndicator(.visible)
                 .presentationCornerRadius(24)
+                .presentationBackground(Color.appCard)
             case .categoryPicker(let tx):
                 CategoryPickerSheet(isExpense: tx.isExpense) { name, emoji in
                     tx.categoryName = name
@@ -606,22 +642,19 @@ struct BigTransactionsCard: View {
                 }
             }
         }
-        .alert("修改名称", isPresented: Binding(
-            get: { editNameTx != nil },
-            set: { if !$0 { editNameTx = nil } }
-        )) {
-            TextField("名称", text: $editNameText)
-            Button("保存") {
-                if let tx = editNameTx,
-                   !editNameText.trimmingCharacters(in: .whitespaces).isEmpty {
-                    tx.name = editNameText.trimmingCharacters(in: .whitespaces)
-                    try? context.save()
-                }
-                editNameTx = nil
-            }
-            Button("取消", role: .cancel) { editNameTx = nil }
-        } message: {
-            if let tx = editNameTx { Text("当前：\(tx.name)") }
+        .sheet(item: $editDateTx) { tx in
+            TransactionDateEditSheet(
+                date: Binding(
+                    get: { tx.date },
+                    set: { newDate in
+                        tx.date = newDate
+                        try? context.save()
+                    }
+                ),
+                onClose: { editDateTx = nil }
+            )
+            .presentationDetents([.height(420)])
+            .presentationDragIndicator(.visible)
         }
         .alert("修改金额", isPresented: Binding(
             get: { editAmountTx != nil },
@@ -663,26 +696,17 @@ struct BigTransactionsCard: View {
     private func bigTxRow(_ tx: Transaction) -> some View {
         HStack(spacing: 12) {
             Text(tx.categoryEmoji)
-                .font(.system(size: 18))
-                .frame(width: 36, height: 36)
-                .background(Color.appBg)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .font(.system(size: 24))
+                .frame(width: 32, alignment: .center)
             VStack(alignment: .leading, spacing: 2) {
                 Text(tx.displayName)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(.appPrimary)
                     .lineLimit(1)
-                HStack(spacing: 5) {
-                    Text(dayString(tx.date))
+                HStack(spacing: 6) {
+                    Text("\(dayString(tx.date)) · \(dayOfWeek(tx.date))")
                         .font(.system(size: 12))
                         .foregroundStyle(.appSecondary)
-                    Text(dayOfWeek(tx.date))
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(.appWarning)
-                            .padding(.horizontal, 6).padding(.vertical, 1)
-                            .background(Color.appWarningSoft)
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
-                    // Percentage of month
                     if monthTotal > 0 {
                         Text("\(Int(tx.absoluteAmount / monthTotal * 100))%")
                             .font(.system(size: 10, weight: .semibold))
@@ -695,7 +719,7 @@ struct BigTransactionsCard: View {
             }
             Spacer()
             Text("¥\(Int(tx.absoluteAmount).formatted())")
-                .font(.system(size: 15, weight: .semibold))
+                .font(.system(size: 16, weight: .semibold, design: .rounded))
                 .foregroundStyle(.appPrimary)
         }
         .padding(.horizontal, 16)
@@ -704,12 +728,6 @@ struct BigTransactionsCard: View {
         .onTapGesture {
             activeSheet = .actionMenu(tx)
         }
-    }
-
-    private func toggleRefund(_ tx: Transaction) {
-        tx.isRefunded.toggle()
-        try? context.save()
-        activeSheet = nil
     }
 
     private func deleteTx(_ tx: Transaction) {
@@ -738,65 +756,62 @@ private struct BigTransactionThresholdSheet: View {
     private let options: [Double] = [3, 5, 8, 10, 15]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("大额消费线")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(.appPrimary)
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 16) {
                 Text("我们默认用 5% 作为温和提醒线，你也可以按自己的消费节奏微调。")
                     .font(.system(size: 13))
                     .foregroundStyle(.appSecondary)
                     .fixedSize(horizontal: false, vertical: true)
-            }
-            .padding(.top, 18)
+                    .padding(.top, 8)
 
-            HStack(spacing: 8) {
-                ForEach(options, id: \.self) { option in
-                    Button {
-                        withAnimation(.spring(response: 0.25, dampingFraction: 0.9)) {
-                            thresholdPercent = option
-                        }
-                    } label: {
-                        VStack(spacing: 5) {
-                            Text(formatPercent(option))
-                                .font(.system(size: 15, weight: .semibold))
-                            if option == 5 {
-                                Text("推荐")
-                                    .font(.system(size: 10, weight: .medium))
+                HStack(spacing: 8) {
+                    ForEach(options, id: \.self) { option in
+                        Button {
+                            withAnimation(.spring(response: 0.25, dampingFraction: 0.9)) {
+                                thresholdPercent = option
                             }
+                        } label: {
+                            VStack(spacing: 5) {
+                                Text(formatPercent(option))
+                                    .font(.system(size: 15, weight: .semibold))
+                                if option == 5 {
+                                    Text("推荐")
+                                        .font(.system(size: 10, weight: .medium))
+                                }
+                            }
+                            .foregroundStyle(thresholdPercent == option ? .white : .appSecondary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 58)
+                            .background(thresholdPercent == option ? Color.appWarning : Color.appCard)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
                         }
-                        .foregroundStyle(thresholdPercent == option ? .white : .appSecondary)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 58)
-                        .background(thresholdPercent == option ? Color.appWarning : Color.appBg)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
+                }
+
+                Text(description)
+                    .font(.system(size: 13))
+                    .foregroundStyle(.appTertiary)
+                    .padding(.horizontal, 2)
+
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.appBg)
+            .navigationTitle("大额消费线")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(Color.appBg, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("完成") { dismiss() }
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.appAccent)
                 }
             }
-
-            Text(description)
-                .font(.system(size: 13))
-                .foregroundStyle(.appTertiary)
-                .padding(.horizontal, 2)
-
-            Button {
-                dismiss()
-            } label: {
-                Text("完成")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Color.appAccent)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-            }
-            .buttonStyle(.plain)
-
-            Spacer(minLength: 0)
         }
-        .padding(.horizontal, 20)
-        .background(Color.appBg)
+        .presentationBackground(Color.appBg)
     }
 
     private var description: String {
@@ -842,10 +857,9 @@ struct BigTransactionDetailSheet: View {
     }
 
     @State private var activeSheet: ActiveSheet?
-    @State private var editNameTx: Transaction?
-    @State private var editNameText = ""
     @State private var editAmountTx: Transaction?
     @State private var editAmountText = ""
+    @State private var editDateTx: Transaction?
     @State private var deleteCandidateTx: Transaction?
 
     private var categories: [(name: String, emoji: String)] {
@@ -929,13 +943,13 @@ struct BigTransactionDetailSheet: View {
                 case .actionMenu(let tx):
                     TransactionActionSheet(
                         tx: tx,
-                        onEditName: {
-                            activeSheet = nil
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                                editNameText = tx.name
-                                editNameTx = tx
+                        isRefunded: Binding(
+                            get: { tx.isRefunded },
+                            set: { newValue in
+                                tx.isRefunded = newValue
+                                try? context.save()
                             }
-                        },
+                        ),
                         onEditAmount: {
                             activeSheet = nil
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
@@ -949,7 +963,12 @@ struct BigTransactionDetailSheet: View {
                                 activeSheet = .categoryPicker(tx)
                             }
                         },
-                        onToggleRefund: { toggleRefund(tx) },
+                        onEditDate: {
+                            activeSheet = nil
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                editDateTx = tx
+                            }
+                        },
                         onDelete: {
                             activeSheet = nil
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
@@ -957,9 +976,10 @@ struct BigTransactionDetailSheet: View {
                             }
                         }
                     )
-                    .presentationDetents([.height(430)])
-                    .presentationDragIndicator(.hidden)
+                    .presentationDetents([.height(380)])
+                    .presentationDragIndicator(.visible)
                     .presentationCornerRadius(24)
+                    .presentationBackground(Color.appCard)
                 case .categoryPicker(let tx):
                     CategoryPickerSheet(isExpense: tx.isExpense) { name, emoji in
                         tx.categoryName = name
@@ -968,22 +988,19 @@ struct BigTransactionDetailSheet: View {
                     }
                 }
             }
-            .alert("修改名称", isPresented: Binding(
-                get: { editNameTx != nil },
-                set: { if !$0 { editNameTx = nil } }
-            )) {
-                TextField("名称", text: $editNameText)
-                Button("保存") {
-                    if let tx = editNameTx,
-                       !editNameText.trimmingCharacters(in: .whitespaces).isEmpty {
-                        tx.name = editNameText.trimmingCharacters(in: .whitespaces)
-                        try? context.save()
-                    }
-                    editNameTx = nil
-                }
-                Button("取消", role: .cancel) { editNameTx = nil }
-            } message: {
-                if let tx = editNameTx { Text("当前：\(tx.name)") }
+            .sheet(item: $editDateTx) { tx in
+                TransactionDateEditSheet(
+                    date: Binding(
+                        get: { tx.date },
+                        set: { newDate in
+                            tx.date = newDate
+                            try? context.save()
+                        }
+                    ),
+                    onClose: { editDateTx = nil }
+                )
+                .presentationDetents([.height(420)])
+                .presentationDragIndicator(.visible)
             }
             .alert("修改金额", isPresented: Binding(
                 get: { editAmountTx != nil },
@@ -1026,10 +1043,8 @@ struct BigTransactionDetailSheet: View {
     private func detailRow(_ tx: Transaction) -> some View {
         HStack(spacing: 12) {
             Text(tx.categoryEmoji)
-                .font(.system(size: 18))
-                .frame(width: 36, height: 36)
-                .background(Color.appBg)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .font(.system(size: 22))
+                .frame(width: 32, alignment: .center)
             VStack(alignment: .leading, spacing: 2) {
                 Text(tx.displayName)
                     .font(.system(size: 14, weight: .medium))
@@ -1075,12 +1090,6 @@ struct BigTransactionDetailSheet: View {
 
     private func dateString(_ date: Date) -> String {
         let f = DateFormatter(); f.setLocalizedDateFormatFromTemplate("MMMdHHmm"); return f.string(from: date)
-    }
-
-    private func toggleRefund(_ tx: Transaction) {
-        tx.isRefunded.toggle()
-        try? context.save()
-        activeSheet = nil
     }
 
     private func deleteTx(_ tx: Transaction) {
@@ -1133,11 +1142,20 @@ struct FreqSpendingCard: View {
     let items: [FrequencyInsightItem]
     let total: Double
     let badgeText: String
-    let distributionTitle: String
 
     @State private var selectedItem: FrequencyInsightItem?
 
     private var maxTimes: Int { items.map { $0.times }.max() ?? 1 }
+
+    /// 排名→bar 颜色——和「支出最多」同款梯度，确保 3 张卡视觉统一
+    private func barColor(rank: Int) -> Color {
+        switch rank {
+        case 0:  return .appAccent
+        case 1:  return .appAccent.opacity(0.65)
+        case 2:  return .appAccent.opacity(0.4)
+        default: return .appSeparator
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -1155,27 +1173,37 @@ struct FreqSpendingCard: View {
             .padding(.bottom, 10)
 
             ForEach(items.indices, id: \.self) { i in
-                if i > 0 { Divider().padding(.leading, 54) }
+                if i > 0 {
+                    Rectangle()
+                        .fill(Color.appSeparator.opacity(0.6))
+                        .frame(height: 0.5)
+                        .padding(.leading, 60)
+                }
                 Button {
                     selectedItem = items[i]
                 } label: {
-                    HStack(spacing: 10) {
+                    HStack(spacing: 12) {
                         Text(items[i].emoji)
-                            .font(.system(size: 18))
-                            .frame(width: 28, alignment: .center)
-                        VStack(alignment: .leading, spacing: 5) {
+                            .font(.system(size: 24))
+                            .frame(width: 32, alignment: .center)
+                        VStack(alignment: .leading, spacing: 7) {
                             Text(items[i].name.localizedCategoryName)
-                                .font(.system(size: 14, weight: .medium))
+                                .font(.system(size: 15, weight: .medium))
                                 .foregroundStyle(.appPrimary)
                                 .lineLimit(1)
+                            // bar——和「支出最多」完全相同的样式（Capsule 5pt + 同款 track + rank 渐变）
                             GeometryReader { geo in
                                 ZStack(alignment: .leading) {
-                                    RoundedRectangle(cornerRadius: 2).fill(Color.appSeparator).frame(height: 3)
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .fill(Color.appAccent.opacity(0.28))
-                                        .frame(width: geo.size.width * CGFloat(items[i].times) / CGFloat(maxTimes), height: 3)
+                                    Capsule()
+                                        .fill(Color.appSeparator.opacity(0.7))
+                                        .frame(height: 5)
+                                    Capsule()
+                                        .fill(barColor(rank: i))
+                                        .frame(width: max(geo.size.width * CGFloat(items[i].times) / CGFloat(maxTimes), 4),
+                                               height: 5)
                                 }
-                            }.frame(height: 3)
+                            }
+                            .frame(height: 5)
                             Text("\(items[i].times) 次 · 均 ¥\(String(format: "%.0f", items[i].avg)) / 次")
                                 .font(.system(size: 11))
                                 .foregroundStyle(.appTertiary)
@@ -1183,7 +1211,7 @@ struct FreqSpendingCard: View {
                         Spacer()
                         VStack(alignment: .trailing, spacing: 4) {
                             Text("¥\(Int(items[i].total).formatted())")
-                                .font(.system(size: 15, weight: .semibold))
+                                .font(.system(size: 16, weight: .semibold, design: .rounded))
                                 .foregroundStyle(.appPrimary)
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 11, weight: .semibold))
@@ -1203,14 +1231,14 @@ struct FreqSpendingCard: View {
                     Text("高频消费合计")
                         .font(.system(size: 12))
                         .foregroundStyle(.appSecondary)
-                    Text("次数看着轻，合在一起更清楚")
+                    Text("单笔小，合起来不少")
                         .font(.system(size: 11))
                         .foregroundStyle(.appTertiary)
                 }
                 Spacer()
                 Text("¥\(Int(total).formatted())")
                     .font(.system(size: 17, weight: .bold))
-                    .foregroundStyle(.appPrimary)
+                    .foregroundStyle(.appTeal)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -1218,14 +1246,13 @@ struct FreqSpendingCard: View {
         .background(Color.appCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .sheet(item: $selectedItem) { item in
-            FrequencyInsightDetailSheet(item: item, distributionTitle: distributionTitle)
+            FrequencyInsightDetailSheet(item: item)
         }
     }
 }
 
 struct FrequencyInsightDetailSheet: View {
     let item: FrequencyInsightItem
-    let distributionTitle: String
 
     @Environment(\.dismiss) private var dismiss
     @State private var metricMode: FrequencyMetricMode = .amount
@@ -1234,70 +1261,45 @@ struct FrequencyInsightDetailSheet: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack(spacing: 10) {
-                            Text(item.emoji)
-                                .font(.system(size: 24))
-                                .frame(width: 44, height: 44)
-                                .background(Color.appAccentSoft)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(item.name.localizedCategoryName)
-                                    .font(.system(size: 22, weight: .bold))
-                                    .foregroundStyle(.appPrimary)
-                                Text(distributionTitle)
-                                    .font(.system(size: 13))
-                                    .foregroundStyle(.appSecondary)
-                            }
-                            Spacer()
-                        }
-
-                        HStack(spacing: 8) {
-                            insightMetric(label: String(localized: "累计金额"), value: "¥\(Int(item.total).formatted())")
-                            insightMetric(label: String(localized: "出现次数"), value: String(localized: "\(item.times) 次"))
-                            insightMetric(label: String(localized: "单次均额"), value: "¥\(Int(item.avg.rounded()).formatted())")
-                        }
+                    // 3 列统计——直接作为视觉 hero（emoji + 名字已经在 nav title 里）
+                    HStack(spacing: 8) {
+                        insightMetric(label: String(localized: "累计金额"), value: "¥\(Int(item.total).formatted())")
+                        insightMetric(label: String(localized: "出现次数"), value: String(localized: "\(item.times) 次"))
+                        insightMetric(label: String(localized: "单次均额"), value: "¥\(Int(item.avg.rounded()).formatted())")
                     }
 
-                    HStack(spacing: 0) {
-                        ForEach(FrequencyMetricMode.allCases) { mode in
-                            Text(mode.localizedName)
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundStyle(metricMode == mode ? .appPrimary : .appSecondary)
-                                .padding(.horizontal, 18)
-                                .padding(.vertical, 6)
-                                .frame(maxWidth: .infinity)
-                                .background(metricMode == mode ? Color.appCard : Color.clear)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                                .contentShape(Rectangle())
-                                .onTapGesture {
-                                    withAnimation(.easeInOut(duration: 0.18)) {
-                                        metricMode = mode
-                                    }
-                                }
-                        }
-                    }
-                    .padding(2)
-                    .background(Color.appSeparator)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-
-                    FrequencyDistributionChart(buckets: item.distribution, mode: metricMode)
+                    FrequencyDistributionChart(buckets: item.distribution, mode: $metricMode)
                 }
                 .padding(16)
             }
             .background(Color.appBg)
-            .navigationTitle("\(item.name.localizedCategoryName)分析")
+            // Nav title 一次性承担分类标识：emoji + 名字 + "分析"
+            .navigationTitle("\(item.emoji) \(item.name.localizedCategoryName)分析")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(Color.appBg, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
+                // 只读视图——用「关闭」/ X icon 语义，避免「完成」暗示用户做了某事
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("完成") { dismiss() }
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(.appAccent)
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(.appSecondary)
+                            .frame(width: 28, height: 28)
+                            .background(Color.appBg.opacity(0.001))   // 扩大点击区
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("关闭")
                 }
             }
         }
-        .presentationDetents([.large])
+        // 按内容真实高度给 detent，避免大片空白；同时提供 .large 让用户想拉就拉到顶
+        .presentationDetents([.height(450), .large])
         .presentationDragIndicator(.visible)
+        .presentationBackground(Color.appBg)
     }
 
     @ViewBuilder
@@ -1320,7 +1322,7 @@ struct FrequencyInsightDetailSheet: View {
 
 struct FrequencyDistributionChart: View {
     let buckets: [FrequencyDistributionBucket]
-    let mode: FrequencyMetricMode
+    @Binding var mode: FrequencyMetricMode
 
     @State private var selectedID: FrequencyDistributionBucket.ID?
 
@@ -1335,37 +1337,51 @@ struct FrequencyDistributionChart: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(mode == .amount ? String(localized: "金额分布") : String(localized: "频次分布"))
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(.appPrimary)
-                Spacer()
+        VStack(alignment: .leading, spacing: 40) {
+            // Header：模式段控（紧凑居左）+ 当前选中柱的详情（居右）
+            // 用 firstTextBaseline 让段控文字基线与右侧数字基线对齐
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                modeToggle
+                    .alignmentGuide(.firstTextBaseline) { d in d[.bottom] - 10 }
+                Spacer(minLength: 8)
                 if let bucket = selectedBucket {
                     HStack(spacing: 4) {
                         Text(bucket.detailLabel)
                             .font(.system(size: 12))
-                            .foregroundStyle(.appSecondary)
+                            .foregroundStyle(.appPrimary)
                         Text(formattedValue(for: bucket))
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(.appAccent)
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .foregroundStyle(.appTeal)
                     }
                 }
             }
 
-            HStack(alignment: .bottom, spacing: 8) {
+            HStack(alignment: .bottom, spacing: 20) {
                 ForEach(buckets) { bucket in
                     VStack(spacing: 8) {
-                        RoundedRectangle(cornerRadius: 7)
-                            .fill(selectedBucket?.id == bucket.id ? Color.appAccent : Color.appAccentSoft)
-                            .frame(height: barHeight(for: bucket))
-                            .animation(.spring(response: 0.25, dampingFraction: 0.8), value: selectedBucket?.id)
+                        // 柱子区——只在 0 值时显示 baseline，避免多柱底连成视觉分割线
+                        ZStack(alignment: .bottom) {
+                            if value(for: bucket) > 0 {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(selectedBucket?.id == bucket.id ? Color.appAccent : Color.appAccent.opacity(0.16))
+                                    .frame(height: barHeight(for: bucket))
+                                    .animation(.spring(response: 0.25, dampingFraction: 0.8), value: selectedBucket?.id)
+                            } else {
+                                // 仅 0 值时显示 baseline，传达"这周存在但无支出"
+                                RoundedRectangle(cornerRadius: 1.5)
+                                    .fill(Color.appSeparator.opacity(0.6))
+                                    .frame(height: 3)
+                            }
+                        }
+                        // 限制柱子最大宽度——避免少 bucket 时柱子变成砖块
+                        .frame(maxWidth: 40)
+                        .frame(height: chartBarMaxHeight, alignment: .bottom)
 
                         Text(bucket.label)
-                            .font(.system(size: 10, weight: selectedBucket?.id == bucket.id ? .bold : .medium))
-                            .foregroundStyle(selectedBucket?.id == bucket.id ? Color.appAccent : Color.appTertiary)
+                            .font(.system(size: 12, weight: selectedBucket?.id == bucket.id ? .semibold : .medium))
+                            .foregroundStyle(selectedBucket?.id == bucket.id ? Color.appAccent : Color.appSecondary)
                             .lineLimit(1)
-                            .minimumScaleFactor(0.7)
+                            .minimumScaleFactor(0.85)
                             .multilineTextAlignment(.center)
                     }
                     .frame(maxWidth: .infinity)
@@ -1377,7 +1393,7 @@ struct FrequencyDistributionChart: View {
                     }
                 }
             }
-            .frame(height: 138, alignment: .bottom)
+            .frame(height: chartBarMaxHeight + 8, alignment: .bottom)
         }
         .padding(16)
         .background(Color.appCard)
@@ -1385,6 +1401,36 @@ struct FrequencyDistributionChart: View {
         .onAppear {
             selectedID = selectedBucket?.id
         }
+    }
+
+    /// 紧凑模式段控——只显示选项文字，无外框；选中态白底+阴影；容器底色加深确保对比。
+    /// 居左放在 chart card 标题位置，宽度只覆盖必要文字 + padding。
+    private var modeToggle: some View {
+        HStack(spacing: 2) {
+            ForEach(FrequencyMetricMode.allCases) { m in
+                Text(m.localizedName)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(mode == m ? .appPrimary : .appSecondary)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background {
+                        if mode == m {
+                            RoundedRectangle(cornerRadius: 7)
+                                .fill(Color.appCard)
+                                .shadow(color: .black.opacity(0.1), radius: 3, y: 1)
+                        }
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.18)) {
+                            mode = m
+                        }
+                    }
+            }
+        }
+        .padding(2)
+        .background(Color.appSeparator)
+        .clipShape(RoundedRectangle(cornerRadius: 9))
     }
 
     private func value(for bucket: FrequencyDistributionBucket) -> Double {
@@ -1403,9 +1449,16 @@ struct FrequencyDistributionChart: View {
         }
     }
 
+    /// 柱区最大高度——足够大才能展示大额 outlier 与小值的真实差异。
+    private var chartBarMaxHeight: CGFloat { 170 }
+
+    /// 柱高计算——平方根缩放：保留排名，但显著放大小值的可视性。
+    /// 0 严格为 0（baseline 显示在 ZStack 里）；非 0 至少 8pt 保证可见。
     private func barHeight(for bucket: FrequencyDistributionBucket) -> CGFloat {
-        let normalized = value(for: bucket) / chartMaxValue
-        return max(CGFloat(normalized) * 96, 8)
+        let raw = value(for: bucket)
+        guard raw > 0, chartMaxValue > 0 else { return 0 }
+        let normalized = sqrt(raw / chartMaxValue)
+        return max(CGFloat(normalized) * chartBarMaxHeight, 8)
     }
 }
 

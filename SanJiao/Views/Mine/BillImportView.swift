@@ -239,7 +239,7 @@ struct BillImportView: View {
                 icon: "📥",
                 title: String(localized: "导入账单"),
                 subtitle: unlockManager.canRecord
-                    ? String(localized: "支持悦笺、微信支付、支付宝导出文件")
+                    ? String(localized: "支持青羽、微信支付、支付宝导出文件")
                     : String(localized: "试用已结束，解锁后即可继续导入"),
                 tint: .appAccent
             ) {
@@ -441,7 +441,7 @@ struct BillImportView: View {
     private var exportFilename: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd-HHmm"
-        return String(localized: "悦笺账单-\(formatter.string(from: Date()))")
+        return String(localized: "青羽账单-\(formatter.string(from: Date()))")
     }
 
     private func prepareExport() {
@@ -874,7 +874,7 @@ private struct ImportPreviewSheet: View {
             }
 
             Text(editableItems.isEmpty
-                 ? String(localized: "这些记录已存在于悦笺中，确认后不会重复添加。")
+                 ? String(localized: "这些记录已存在于青羽中，确认后不会重复添加。")
                  : String(localized: "点任意一笔可修改分类；修改后会记住该商户，下次自动识别。"))
                 .font(.system(size: 13))
                 .foregroundStyle(.appSecondary)
@@ -888,7 +888,7 @@ private struct ImportPreviewSheet: View {
                             .foregroundStyle(.appWarning)
                             .padding(.top, 1)
 
-                        Text("有 \(uncategorizedCount) 笔暂时归到“其他”，建议点开看一眼分类。你改过一次后，悦笺会尽量记住。")
+                        Text("有 \(uncategorizedCount) 笔归到「其他」，点开可以改分类。改过一次，下次导入会沿用。")
                             .font(.system(size: 12))
                             .foregroundStyle(.appSecondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -1004,10 +1004,8 @@ private struct ImportPreviewSheet: View {
                 } label: {
                     HStack(spacing: 12) {
                         Text(first.categoryEmoji)
-                            .font(.system(size: 20))
-                            .frame(width: 32, height: 32)
-                            .background(Color.appBg)
-                            .clipShape(Circle())
+                            .font(.system(size: 22))
+                            .frame(width: 32, alignment: .center)
 
                         VStack(alignment: .leading, spacing: 3) {
                             HStack(spacing: 6) {
@@ -1204,7 +1202,7 @@ private struct ImportPreviewGroup: Identifiable {
 // MARK: - 导入教程来源（用于 segmented control）
 
 private enum ImportGuideSource: String, CaseIterable, Identifiable {
-    case wechat, alipay, yuejian
+    case wechat, alipay, qingyu
 
     var id: String { rawValue }
 
@@ -1212,7 +1210,7 @@ private enum ImportGuideSource: String, CaseIterable, Identifiable {
         switch self {
         case .wechat:   return String(localized: "微信")
         case .alipay:   return String(localized: "支付宝")
-        case .yuejian: return String(localized: "悦笺备份")
+        case .qingyu: return String(localized: "青羽备份")
         }
     }
 
@@ -1223,7 +1221,7 @@ private enum ImportGuideSource: String, CaseIterable, Identifiable {
                 String(localized: "打开「微信」→「我」→「服务」→「钱包」"),
                 String(localized: "进入右上角「账单」→「常见问题」→「下载账单」"),
                 String(localized: "按月或时间范围导出，优先 XLSX，CSV 也可"),
-                String(localized: "下载完成后回到悦笺，选择该文件即可")
+                String(localized: "下载完成后回到青羽，选择该文件即可")
             ]
         case .alipay:
             return [
@@ -1232,7 +1230,7 @@ private enum ImportGuideSource: String, CaseIterable, Identifiable {
                 String(localized: "按提示选择时间范围并提交"),
                 String(localized: "下载完成后选择 CSV 文件导入")
             ]
-        case .yuejian:
+        case .qingyu:
             return [
                 String(localized: "在「我的」→「账单管理」→「导出账单」中导出 CSV"),
                 String(localized: "通过「文件」App、AirDrop 或邮件保存这份备份"),

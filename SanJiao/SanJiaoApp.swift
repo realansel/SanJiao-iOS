@@ -3,12 +3,14 @@ import SwiftData
 import UserNotifications
 
 @main
-struct YuejianApp: App {
+struct QingyuApp: App {
     @AppStorage("notification_enabled") private var notificationEnabled = false
     @AppStorage("notification_hour") private var notificationHour = 21
     @AppStorage("notification_minute") private var notificationMinute = 0
     @State private var appState = AppState()
     @State private var unlockManager = UnlockManager()
+    @State private var appLock = AppLockManager()
+    @Environment(\.scenePhase) private var scenePhase
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([Transaction.self, Category.self, MerchantCategoryRule.self])
@@ -16,7 +18,7 @@ struct YuejianApp: App {
         do {
             let container = try ModelContainer(for: schema, configurations: [config])
             // 给本地数据库设置 .complete 文件保护：设备锁屏后解密密钥被清出内存，数据真正不可读
-            YuejianApp.applyCompleteFileProtection(storeURL: config.url)
+            QingyuApp.applyCompleteFileProtection(storeURL: config.url)
             return container
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
@@ -53,6 +55,7 @@ struct YuejianApp: App {
             ContentView()
                 .environment(appState)
                 .environment(unlockManager)
+                .environment(appLock)
                 .onAppear {
                     Category.seedDefaultCategories(context: sharedModelContainer.mainContext)
                     appState.checkOnboarding()
@@ -61,5 +64,12 @@ struct YuejianApp: App {
                 }
         }
         .modelContainer(sharedModelContainer)
+        .onChange(of: scenePhase) { _, phase in
+            switch phase {
+            case .background: appLock.lockOnBackground()  // 退后台→标记需重新解锁
+            case .active:     appLock.authenticate()      // 回前台→自动唤起认证
+            default:          break
+            }
+        }
     }
 }

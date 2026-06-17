@@ -181,12 +181,10 @@ struct CategoryManagementView: View {
     }
 
     private func categoryRow(_ category: Category) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 14) {
             Text(category.emoji)
-                .font(.system(size: 22))
-                .frame(width: 42, height: 42)
-                .background(Color.appBg)
-                .clipShape(RoundedRectangle(cornerRadius: 13))
+                .font(.system(size: 26))
+                .frame(width: 36, alignment: .center)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(category.name.localizedCategoryName)

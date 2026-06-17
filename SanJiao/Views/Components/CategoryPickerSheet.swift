@@ -12,6 +12,7 @@ struct CategoryPickerSheet: View {
 
     @Query(sort: \Category.sortOrder) private var categories: [Category]
     @Environment(\.dismiss) private var dismiss
+    @State private var measuredHeight: CGFloat = 0
 
     private var expenseCategories: [Category] { categories.filter { $0.isExpense } }
     private var incomeCategories:  [Category] { categories.filter { !$0.isExpense } }
@@ -34,8 +35,17 @@ struct CategoryPickerSheet: View {
                     }
                 }
                 .padding(20)
+                .background(
+                    GeometryReader { geo in
+                        Color.clear.preference(key: PickerContentHeightKey.self, value: geo.size.height)
+                    }
+                )
             }
             .background(Color.appBg)
+            .onPreferenceChange(PickerContentHeightKey.self) { measuredHeight = $0 }
+            // 自测内容高度 + 顶部导航栏与底部安全区的固定开销，让 sheet 刚好容纳所有分类、
+            // 不截断最后一行。调用点若自带 .presentationDetents（外层），会自然覆盖此默认值。
+            .presentationDetents(measuredHeight > 0 ? [.height(measuredHeight + 90)] : [.large])
             .navigationTitle("选择分类")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -78,19 +88,26 @@ struct CategoryPickerSheet: View {
                     } label: {
                         VStack(spacing: 6) {
                             Text(cat.emoji)
-                                .font(.system(size: 26))
+                                .font(.system(size: 38))
                                 .frame(width: 56, height: 56)
-                                .background(Color.appCard)
-                                .clipShape(RoundedRectangle(cornerRadius: 16))
                             Text(cat.name.localizedCategoryName)
                                 .font(.system(size: 12))
                                 .foregroundStyle(.appPrimary)
                                 .lineLimit(1)
                         }
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
             }
         }
+    }
+}
+
+/// 量取分类网格内容的自然高度，用于自适应 sheet detent。
+private struct PickerContentHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }

@@ -14,10 +14,6 @@ struct YearStatsView: View {
         Set(transactions.map { Calendar.current.component(.year, from: $0.date) })
     }
 
-    private var canGoPrevious: Bool {
-        yearsWithData.contains(appState.statsYear - 1)
-    }
-
     private var yearTx: [Transaction] {
         transactions.filter {
             Calendar.current.component(.year, from: $0.date) == appState.statsYear &&
@@ -40,7 +36,8 @@ struct YearStatsView: View {
         guard yearIncome > 0 else { return nil }
         return yearSavings / yearIncome
     }
-    private var savingsColor: Color { yearSavings >= 0 ? Color.appGreen : Color.appWarning }
+    /// 结余/超出收入 color：盈余用柔和墨绿（金融惯例 + 莫兰迪色调），赤字用橙色（柔性警示）
+    private var savingsColor: Color { yearSavings >= 0 ? Color.appGreen : Color.appOrange }
     private var isOverspending: Bool { yearIncome > 0 && yearSavings < 0 }
 
     // Monthly totals (12 months)
@@ -175,17 +172,7 @@ struct YearStatsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Year navigator
-            HStack(spacing: 12) {
-                navBtn(disabled: !canGoPrevious) { appState.changeStatsYear(-1) }
-                Text("\(String(appState.statsYear))年")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(.appPrimary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                navBtn(isNext: true, disabled: isCurrentYear) { appState.changeStatsYear(1) }
-            }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 12)
+            // Year nav 已上移到 StatsView 统一管理（支持滚动后塌缩进 nav bar）
 
             // Donut + legend
             HStack(spacing: 24) {
@@ -203,12 +190,21 @@ struct YearStatsView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     ForEach(categoryBreakdown.indices, id: \.self) { i in
                         HStack(spacing: 8) {
-                            Circle().fill(donutColor(idx: i)).frame(width: 10, height: 10)
-                            Text(categoryBreakdown[i].name.localizedCategoryName).font(.system(size: 13)).foregroundStyle(.appSecondary).frame(maxWidth: .infinity, alignment: .leading)
-                            Text("\(Int(categoryBreakdown[i].pct * 100))%").font(.system(size: 13, weight: .semibold)).foregroundStyle(.appPrimary)
+                            Circle()
+                                .fill(donutColor(idx: i))
+                                .frame(width: 9, height: 9)
+                            Text(categoryBreakdown[i].name.localizedCategoryName)
+                                .font(.system(size: 13))
+                                .foregroundStyle(.appSecondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .lineLimit(1)
+                            Text("\(Int(categoryBreakdown[i].pct * 100))%")
+                                .font(.system(size: 12, weight: .medium, design: .rounded))
+                                .foregroundStyle(.appSecondary)
                         }
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(24)
             .background(Color.appCard)
@@ -230,19 +226,25 @@ struct YearStatsView: View {
                     .padding(.horizontal, 16).padding(.bottom, 12)
             }
 
-            // Year highlights
+            // Year highlights——inline 3 列，去卡中卡
             if !yearTx.isEmpty {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 16) {
                     Text("年度亮点")
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(.appPrimary)
-                    HStack(spacing: 8) {
+                    HStack(spacing: 0) {
                         hlItem(
                             label: String(localized: "支出最高"),
                             value: highlights.highest.0 > 0 ? "¥\(Int(highlights.highest.0).formatted())" : "—",
                             sub: highlights.highest.0 > 0 ? String(localized: "\(highlights.highest.1)月") : ""
                         )
-                        hlItem(label: String(localized: "月均支出"), value: "¥\(Int(monthAvg).formatted())", sub: String(localized: "平均"))
+                        savingsDivider
+                        hlItem(
+                            label: String(localized: "月均支出"),
+                            value: "¥\(Int(monthAvg).formatted())",
+                            sub: String(localized: "平均")
+                        )
+                        savingsDivider
                         hlItem(
                             label: String(localized: "支出最低"),
                             value: highlights.lowest.0 > 0 ? "¥\(Int(highlights.lowest.0).formatted())" : "—",
@@ -267,8 +269,7 @@ struct YearStatsView: View {
                 FreqSpendingCard(
                     items: freqCategories,
                     total: freqTotal,
-                    badgeText: String(localized: "这一年常出现"),
-                    distributionTitle: String(localized: "全年分布")
+                    badgeText: String(localized: "这一年常出现")
                 )
                 .padding(.horizontal, 16).padding(.bottom, 12)
             }
@@ -277,112 +278,89 @@ struct YearStatsView: View {
         }
     }
 
-    @ViewBuilder
     private func hlItem(label: String, value: String, sub: String) -> some View {
         VStack(spacing: 3) {
             Text(label)
-                .font(.system(size: 10, weight: .medium))
+                .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(.appSecondary)
             Text(value)
-                .font(.system(size: 14, weight: .bold))
+                .font(.system(size: 16, weight: .bold, design: .rounded))
                 .foregroundStyle(.appPrimary)
                 .tracking(-0.3)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
             if !sub.isEmpty {
                 Text(sub)
-                    .font(.system(size: 10))
+                    .font(.system(size: 11))
                     .foregroundStyle(.appTertiary)
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 14)
-        .background(Color.appBg)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
+    /// 圆环段颜色——和 MonthStatsView 同款 rank 梯度，保持品牌紫一致
     private func donutColor(idx: Int) -> Color {
-        [Color.appAccent, Color(hex: "FF9F0A"), Color(hex: "34C759"), Color(hex: "FF3B30"), Color(hex: "AEAEB2")][idx % 5]
+        switch idx {
+        case 0:  return .appAccent
+        case 1:  return .appAccent.opacity(0.65)
+        case 2:  return .appAccent.opacity(0.45)
+        case 3:  return .appAccent.opacity(0.3)
+        default: return Color.appSeparator
+        }
     }
 
     // MARK: - Savings card
 
     private var savingsCard: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 16) {
             Text(isOverspending ? String(localized: "年度收支") : String(localized: "年度结余"))
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(.appPrimary)
 
-            HStack(spacing: 8) {
+            // Inline 3 列——和 BillView 顶部 summary 同款语言（去卡中卡）
+            HStack(spacing: 0) {
                 savingsCell(label: String(localized: "总收入"), value: yearIncome, color: .appGreen)
+                savingsDivider
                 savingsCell(label: String(localized: "总支出"), value: totalExpense, color: .appPrimary)
+                savingsDivider
                 savingsCell(
                     label: isOverspending ? String(localized: "超出收入") : String(localized: "结余"),
                     value: abs(yearSavings),
-                    color: savingsColor,
-                    isMain: true
+                    color: savingsColor
                 )
             }
 
             if isOverspending {
                 let spendRatio = min(totalExpense / yearIncome, 2.0)
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text("支出占收入")
-                            .font(.system(size: 12))
-                            .foregroundStyle(.appSecondary)
-                        Spacer()
-                        Text("\(Int((totalExpense / yearIncome * 100).rounded()))%")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(.appWarning)
-                    }
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 3).fill(Color.appSeparator).frame(height: 6)
-                            // 绿色段：收入占总支出的比例
-                            RoundedRectangle(cornerRadius: 3)
-                                .fill(Color.appGreen.opacity(0.55))
-                                .frame(width: geo.size.width * CGFloat(min(1.0 / spendRatio, 1)), height: 6)
-                        }
-                    }
-                    .frame(height: 6)
-                    GeometryReader { geo in
-                        let greenEnd = geo.size.width * CGFloat(min(1.0 / spendRatio, 1))
-                        ZStack(alignment: .leading) {
-                            Text("收入")
-                                .font(.system(size: 11))
-                                .foregroundStyle(.appGreen)
-                                .frame(width: greenEnd, alignment: .trailing)
-                            Text("支出")
-                                .font(.system(size: 11))
-                                .foregroundStyle(.appWarning)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                        }
-                    }
-                    .frame(height: 16)
-                }
-                Text("记录本身就是改变的开始。")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.appTertiary)
+                ratioProgressBlock(
+                    leadLabel: String(localized: "支出占收入"),
+                    pctText: "\(Int((totalExpense / yearIncome * 100).rounded()))%",
+                    pctColor: .appOrange,
+                    leftFillRatio: min(1.0 / spendRatio, 1),
+                    leftColor: Color.appGreen.opacity(0.5),     // 左段=收入覆盖部分，柔和墨绿
+                    rightFillRatio: 1.0,
+                    rightColor: .appOrange,
+                    leftCaption: String(localized: "收入"),
+                    leftCaptionColor: .appGreen,
+                    rightCaption: String(localized: "支出"),
+                    rightCaptionColor: .appOrange
+                )
             } else if let rate = savingsRate {
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text("储蓄率")
-                            .font(.system(size: 12))
-                            .foregroundStyle(.appSecondary)
-                        Spacer()
-                        Text("\(Int((rate * 100).rounded()))%")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(.appGreen)
-                    }
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 3).fill(Color.appSeparator).frame(height: 6)
-                            RoundedRectangle(cornerRadius: 3)
-                                .fill(Color.appGreen)
-                                .frame(width: geo.size.width * CGFloat(max(0, min(1, rate))), height: 6)
-                        }
-                    }
-                    .frame(height: 6)
-                }
+                // 盈余态：bar 始终满格，左段（储蓄）+ 右段（支出）共同分割收入 100%。
+                // 同色系深浅区分——都属于"你的收入"。
+                ratioProgressBlock(
+                    leadLabel: String(localized: "储蓄率"),
+                    pctText: "\(Int((rate * 100).rounded()))%",
+                    pctColor: .appGreen,
+                    leftFillRatio: max(0, min(1, rate)),
+                    leftColor: .appGreen,
+                    rightFillRatio: 1.0,
+                    rightColor: Color.appGreen.opacity(0.2),    // 浅墨绿——同色系，表"也是收入的一部分"
+                    leftCaption: String(localized: "储蓄"),
+                    leftCaptionColor: .appGreen,
+                    rightCaption: String(localized: "支出"),
+                    rightCaptionColor: .appSecondary
+                )
             } else {
                 Text("在记录页添加收入后，这里会显示今年攒下多少钱 💰")
                     .font(.system(size: 12))
@@ -395,39 +373,89 @@ struct YearStatsView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
+    /// 通用 progress + 双标签 block——两种 case 共用，确保视觉权重对等
     @ViewBuilder
-    private func savingsCell(label: String, value: Double, color: Color, isMain: Bool = false) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(label)
-                .font(.system(size: 11))
-                .foregroundStyle(.appSecondary)
-            Text("¥\(Int(value).formatted())")
-                .font(.system(size: isMain ? 15 : 13, weight: isMain ? .bold : .semibold))
-                .foregroundStyle(color)
-                .minimumScaleFactor(0.7)
-                .lineLimit(1)
+    private func ratioProgressBlock(
+        leadLabel: String,
+        pctText: String,
+        pctColor: Color,
+        leftFillRatio: Double,    // 左半段填充比 (0~1)
+        leftColor: Color,
+        rightFillRatio: Double,   // 右半段填充比 (赤字态 = 1.0 满；盈余态 = 0)
+        rightColor: Color,
+        leftCaption: String,
+        leftCaptionColor: Color,
+        rightCaption: String,
+        rightCaptionColor: Color
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(leadLabel)
+                    .font(.system(size: 12))
+                    .foregroundStyle(.appSecondary)
+                Spacer()
+                Text(pctText)
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundStyle(pctColor)
+            }
+            // 进度条——Capsule 5pt + 0.7 track，统一其他卡的 bar 样式
+            GeometryReader { geo in
+                let leftEnd = geo.size.width * CGFloat(leftFillRatio)
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(Color.appSeparator.opacity(0.7))
+                        .frame(height: 5)
+                    Capsule()
+                        .fill(leftColor)
+                        .frame(width: max(leftEnd, 4), height: 5)
+                    if rightFillRatio > 0 {
+                        Capsule()
+                            .fill(rightColor)
+                            .frame(width: geo.size.width - leftEnd, height: 5)
+                            .offset(x: leftEnd)
+                    }
+                }
+            }
+            .frame(height: 5)
+            // 双标签：左半段终点位置标 leftCaption，右端标 rightCaption
+            GeometryReader { geo in
+                let leftEnd = geo.size.width * CGFloat(leftFillRatio)
+                ZStack(alignment: .leading) {
+                    Text(leftCaption)
+                        .font(.system(size: 11))
+                        .foregroundStyle(leftCaptionColor)
+                        .frame(width: leftEnd, alignment: .trailing)
+                    Text(rightCaption)
+                        .font(.system(size: 11))
+                        .foregroundStyle(rightCaptionColor)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+            }
+            .frame(height: 16)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .background(Color.appBg)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    @ViewBuilder
-    private func navBtn(isNext: Bool = false, disabled: Bool = false, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(isNext ? "›" : "‹")
-                .font(.system(size: 14))
-                .foregroundStyle(disabled ? .appTertiary : .appSecondary)
-                .frame(width: 30, height: 30)
-                .background(Color.appSeparator)
-                .clipShape(Circle())
+    private func savingsCell(label: String, value: Double, color: Color) -> some View {
+        VStack(spacing: 4) {
+            Text(label)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.appSecondary)
+            Text("¥\(Int(value).formatted())")
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .foregroundStyle(color)
+                .tracking(-0.3)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
         }
-        .buttonStyle(.plain)
-        .disabled(disabled)
-        .opacity(disabled ? 0.3 : 1)
+        .frame(maxWidth: .infinity)
     }
+
+    private var savingsDivider: some View {
+        Rectangle()
+            .fill(Color.appSeparator.opacity(0.6))
+            .frame(width: 0.5, height: 28)
+    }
+
 }
 
 // MARK: - 收支比趋势卡片
@@ -458,6 +486,16 @@ private struct IncomeExpenseRatioCard: View {
     private var activePoint: YearStatsView.QuarterPoint? {
         guard let i = activeIndex, i < points.count else { return nil }
         return points[i]
+    }
+
+    /// 收支比 → 颜色（用于 0.32 数字本身）
+    /// > 1：盈余 紫色（品牌色，正向但不喜悦）
+    /// = 1：打平 灰色
+    /// < 1：赤字 橙色（柔性警示，与 BillView 结余色一致）
+    private func ratioColor(for ratio: Double) -> Color {
+        if ratio > 1.0 { return .appAccent }
+        if ratio < 1.0 { return .appOrange }
+        return .appSecondary
     }
 
     /// 根据收支比给出鼓励/提示文案
@@ -496,8 +534,8 @@ private struct IncomeExpenseRatioCard: View {
                     if let p = activePoint, let r = p.ratio {
                         VStack(alignment: .trailing, spacing: 1) {
                             Text(String(format: "%.2f", r))
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundStyle(r >= 1 ? .appGreen : .appWarning)
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                                .foregroundStyle(ratioColor(for: r))
                             Text("\(p.label) '\(p.yearShort)")
                                 .font(.system(size: 10))
                                 .foregroundStyle(.appTertiary)
@@ -613,19 +651,21 @@ private struct IncomeExpenseRatioCard: View {
                     .stroke(Color.appAccent, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
                 }
 
-                // 数据点（可点击）
+                // 数据点（可点击）——折线保持品牌紫，活动点用荧青（与 App 图标的数据点同源）
                 ForEach(Array(validIndexed.enumerated()), id: \.offset) { _, item in
                     let pt = point(item.0, item.1)
-                    let color: Color = item.1 >= 1 ? .appGreen : .appWarning
                     let isActive = activeIndex == item.0
                     ZStack {
                         if isActive {
-                            Circle().fill(color.opacity(0.18)).frame(width: 22, height: 22)
+                            // 选中态光晕：荧青
+                            Circle().fill(Color.appTeal.opacity(0.2)).frame(width: 22, height: 22)
                         }
                         Circle()
-                            .fill(isActive ? color : Color.appCard)
+                            .fill(isActive ? Color.appTeal : Color.appCard)
                             .frame(width: isActive ? 11 : 9, height: isActive ? 11 : 9)
-                            .overlay(Circle().stroke(color, lineWidth: 2))
+                            .overlay(Circle().stroke(isActive ? Color.appTeal : Color.appAccent, lineWidth: 2))
+                            .shadow(color: isActive ? Color.appTeal.opacity(0.4) : .clear,
+                                    radius: isActive ? 4 : 0, y: isActive ? 2 : 0)
                     }
                     .position(pt)
                 }

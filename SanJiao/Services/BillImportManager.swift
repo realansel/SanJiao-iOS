@@ -38,11 +38,11 @@ enum BillImportError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .unsupportedFormat:
-            return String(localized: "不支持的文件格式。\n悦笺支持微信支付 CSV / XLSX、支付宝 CSV、悦笺备份 CSV，请重新选择对应文件。")
+            return String(localized: "不支持的文件格式。\n青羽支持微信支付 CSV / XLSX、支付宝 CSV、青羽备份 CSV，请重新选择对应文件。")
         case .encodingError:
             return String(localized: "文件编码无法识别，请尝试重新导出原始账单后再导入。")
         case .parseError:
-            return String(localized: "文件内容无法识别。\n请确认选择的是微信支付、支付宝或悦笺的原始导出文件，且文件未经任何修改。")
+            return String(localized: "文件内容无法识别。\n请确认选择的是微信支付、支付宝或青羽的原始导出文件，且文件未经任何修改。")
         }
     }
 }
@@ -86,7 +86,7 @@ enum CSVLocalization {
         category: "Category", categoryIcon: "Category Icon", note: "Note",
         isRefunded: "Is Refunded", createdAt: "Created At")
 
-    /// All known "category icon" header variants — used to detect YueJian format on import.
+    /// All known "category icon" header variants — used to detect Qingyu format on import.
     static let allCategoryIconHeaders = [zhHans.categoryIcon, zhHant.categoryIcon, en.categoryIcon]
 
     /// Headers for the current UI language.
@@ -155,27 +155,35 @@ enum CSVLocalization {
     private static let categoryMap: [(zhHans: String, en: String, zhHant: String)] = [
         // expense
         ("餐饮", "Food",          "餐飲"),
-        ("交通", "Transport",     "交通"),
         ("咖啡", "Coffee",        "咖啡"),
+        ("零食", "Snacks",        "零食"),
+        ("交通", "Transport",     "交通"),
         ("购物", "Shopping",      "購物"),
-        ("旅游", "Travel",        "旅遊"),
+        ("日用", "Household",     "日用"),
+        ("服饰", "Clothing",      "服飾"),
         ("娱乐", "Entertainment", "娛樂"),
-        ("医疗", "Medical",       "醫療"),
+        ("订阅", "Subscription",  "訂閱"),
+        ("旅游", "Travel",        "旅遊"),
         ("住房", "Housing",       "住房"),
         ("通讯", "Phone",         "通訊"),
+        ("医疗", "Medical",       "醫療"),
+        ("美妆", "Beauty",        "美妝"),
         ("教育", "Education",     "教育"),
         ("运动", "Fitness",       "運動"),
-        ("美妆", "Beauty",        "美妝"),
         ("宠物", "Pets",          "寵物"),
+        ("母婴", "Baby",          "母嬰"),
         ("人情", "Social",        "人情"),
-        ("红包", "Red Packet",    "紅包"),
         ("其他", "Other",         "其他"),
+        // 已废弃但保留在 map 以兼容老用户数据（红包已并入人情）
+        ("红包", "Red Packet",    "紅包"),
         // income
         ("工资", "Salary",        "薪資"),
+        ("报销", "Reimbursement", "報銷"),
         ("奖金", "Bonus",         "獎金"),
         ("兼职", "Part-time",     "兼職"),
         ("投资", "Investment",    "投資"),
         ("退款", "Refund",        "退款"),
+        // 已废弃但保留在 map 以兼容老用户数据
         ("转账", "Transfer",      "轉帳"),
     ]
 
@@ -418,7 +426,7 @@ final class BillImportManager {
         guard let headerIdx = lines.firstIndex(where: {
             $0.contains("交易时间") && $0.contains("收/支")
         }) else {
-            throw BillImportError.parseError(String(localized: "找不到表头行，请确认文件来自微信支付、支付宝或悦笺导出"))
+            throw BillImportError.parseError(String(localized: "找不到表头行，请确认文件来自微信支付、支付宝或青羽导出"))
         }
 
         let isWeChat = lines[headerIdx].contains("交易类型")
@@ -649,11 +657,12 @@ final class BillImportManager {
         if !isExpense { return ("工资", "💰") }
         switch cat {
         case "餐饮美食":           return ("餐饮", "🍜")
+        case "咖啡":              return ("咖啡", "☕️")
         case "交通出行":           return ("交通", "🚇")
         case "旅行出游":           return ("旅游", "✈️")
-        case "咖啡":              return ("咖啡", "☕️")
-        case "日用百货","网络购物",
-             "数码电器","服饰装扮": return ("购物", "🛒")
+        case "日用百货":           return ("日用", "🧺")
+        case "服饰装扮":           return ("服饰", "👔")
+        case "网络购物","数码电器": return ("购物", "🛒")
         case "文化休闲","亲子娱乐": return ("娱乐", "🎬")
         case "医疗健康":           return ("医疗", "💊")
         case "住房物业","水电煤":   return ("住房", "🏠")
@@ -665,7 +674,7 @@ final class BillImportManager {
     }
 
     private static func wechatCategory(_ txType: String, merchant: String, product: String, isExpense: Bool) -> (String, String) {
-        if txType.contains("微信红包") { return ("红包", "🧧") }
+        if txType.contains("微信红包") { return ("人情", "🧧") }
         if !isExpense { return ("工资", "💰") }
 
         // 微信账单里，真实语义通常藏在“交易对方 + 商品”里；
@@ -675,8 +684,10 @@ final class BillImportManager {
         let text = "\(primaryText) \(typeText)"
 
         if containsAny(text, keywords: [
-            "luckin","manner","starbucks","瑞幸","星巴克","库迪","mstand",
-            "咖啡","奶茶","喜茶","奈雪","茶百道","沪上阿姨","coco","茶颜","霸王茶姬","饮品"
+            "luckin","manner","starbucks","瑞幸","星巴克","库迪","cotti","mstand",
+            "tims","tim hortons","%arabica","arabica","seesaw","peet",
+            "咖啡","奶茶","喜茶","heytea","奈雪","茶百道","沪上阿姨","coco","茶颜","茶颜悦色",
+            "蜜雪","蜜雪冰城","霸王茶姬","古茗","益禾堂","书亦","一点点","乐乐茶","贡茶","饮品"
         ]) {
             return ("咖啡", "☕️")
         }
@@ -703,6 +714,15 @@ final class BillImportManager {
             "airbnb","booking","环球影城","迪士尼","机酒","邮轮"
         ]) {
             return ("旅游", "✈️")
+        }
+
+        // 软件/工具订阅（云存储、AI、生产力工具）—— 优先于「娱乐」，避免 Apple One 等被分错
+        if containsAny(text, keywords: [
+            "icloud","apple one","app store","appstore","chatgpt","openai","github copilot",
+            "notion","figma","adobe","creative cloud","office 365","microsoft 365","onedrive",
+            "dropbox","google one","jetbrains","linear","raycast","订阅","subscription"
+        ]) {
+            return ("订阅", "📺")
         }
 
         if containsAny(text, keywords: [
@@ -756,21 +776,83 @@ final class BillImportManager {
             return ("宠物", "🐾")
         }
 
+        // 服饰 / 鞋包（优先于「购物」与「运动」，避免 Nike 这类被分到运动器材）
         if containsAny(text, keywords: [
-            "礼物","鲜花","礼金","份子","红包礼","伴手礼","人情","祝福","满月酒","婚礼","生日礼"
+            "zara","uniqlo","优衣库","h&m","hm","gap","muji","无印良品","gu",
+            "nike","adidas","new balance","nb","lululemon","lulu","puma","fila",
+            "得物","poizon","男装","女装","童装","内衣","鞋店","服装","服饰",
+            "羽绒服","外套","t恤","卫衣","裤子","运动鞋","运动鞋服"
         ]) {
-            return ("人情", "🎀")
+            return ("服饰", "👔")
+        }
+
+        // 日用 / 超市 / 家清
+        if containsAny(text, keywords: [
+            "超市","沃尔玛","walmart","大润发","永辉","物美","华润","山姆","sam","costco",
+            "盒马","奥乐齐","aldi","citysuper","屈臣氏","名创优品","宜家","ikea",
+            "洗洁精","洗衣液","纸巾","卫生纸","日化","日用","家清","清洁","百货"
+        ]) {
+            return ("日用", "🧺")
+        }
+
+        // 零食 / 便利店 / 饮料水
+        if containsAny(text, keywords: [
+            "全家","familymart","罗森","lawson","711","7-eleven","7-11","便利蜂","便利店",
+            "小卖部","薯片","饼干","巧克力","糖果","坚果","果干","辣条","零食","士多"
+        ]) {
+            return ("零食", "🍿")
+        }
+
+        // 母婴 —— 奶粉 / 纸尿裤 / 婴童用品
+        if containsAny(text, keywords: [
+            "母婴","奶粉","尿不湿","纸尿裤","尿布","奶瓶","辅食","婴儿","宝宝","孕妇","童装","玩具","早教"
+        ]) {
+            return ("母婴", "🍼")
+        }
+
+        // 送礼 / 红包 —— 归入人情
+        if containsAny(text, keywords: [
+            "礼物","鲜花","礼金","份子","红包","伴手礼","人情","祝福","满月酒","婚礼","生日礼"
+        ]) {
+            return ("人情", "🧧")
         }
 
         if containsAny(text, keywords: [
-            "超市","便利店","全家","罗森","7eleven","711","京东","淘宝","天猫","拼多多",
-            "盒马","山姆","costco","屈臣氏","名创优品","宜家","商场","闪购","购物","百货",
-            "citysuper","奥乐齐","aldi","lawson","zara","得物"
+            "京东","淘宝","天猫","拼多多","商场","闪购","购物","jd","taobao","tmall"
         ]) {
             return ("购物", "🛒")
         }
 
         return ("其他", "💡")
+    }
+
+    // MARK: - 文本分类推断（语音/手动记账复用）
+
+    /// 从一段文本推断分类：先匹配用户自学习的「通用」规则（含导入纠正与备注学习），
+    /// 命中不了再回退到内置关键词级联（仅支出）。匹配不到返回 nil，由调用方决定兜底。
+    ///
+    /// - rules: 全部 MerchantCategoryRule（调用方用 @Query 取）
+    /// - type: "expense" / "income"
+    static func inferCategory(
+        from text: String,
+        rules: [MerchantCategoryRule],
+        type: String
+    ) -> (String, String)? {
+        let t = normalizeText(text)
+        guard !t.isEmpty else { return nil }
+
+        // 自学习优先：通用规则、类型匹配、子串命中；长 key 优先（更具体的备注先匹配）
+        let learned = rules
+            .filter { $0.source == "通用" && $0.type == type && !$0.merchantKey.isEmpty }
+            .sorted { $0.merchantKey.count > $1.merchantKey.count }
+        for rule in learned where t.contains(rule.merchantKey) {
+            return (rule.categoryName, rule.categoryEmoji)
+        }
+
+        // 内置关键词级联只覆盖支出语义，收入不套用
+        guard type == "expense" else { return nil }
+        let result = wechatCategory("", merchant: text, product: "", isExpense: true)
+        return result.0 == "其他" ? nil : result
     }
 
     // MARK: - Helpers

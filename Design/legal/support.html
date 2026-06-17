@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>青羽记账 · 支持与帮助</title>
+<style>
+  :root{
+    --purple:#5143EF; --purple-dk:#2E2680; --teal:#0F6E56;
+    --ink:#1c1c28; --sub:#5f5e6e; --line:rgba(0,0,0,.08); --card:#fff; --bg:#f4f3f9;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.75; font-size:16px;
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:32px 20px 80px}
+  header{padding:28px 0 8px}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:600; color:var(--purple); font-size:18px}
+  .brand .dot{width:24px;height:24px;border-radius:7px;display:inline-block;vertical-align:-5px}
+  h1{font-size:28px; margin:18px 0 4px; letter-spacing:-.5px}
+  .meta{color:var(--sub); font-size:14px; margin:0 0 18px}
+  .contact{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 20px; margin:0 0 26px}
+  .contact .row{display:flex; justify-content:space-between; align-items:center; gap:12px}
+  .contact a{font-weight:600}
+  .contact .hint{color:var(--sub); font-size:14px; margin:6px 0 0}
+  h2{font-size:18px; margin:30px 0 8px; color:var(--purple-dk)}
+  .faq{background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; margin:14px 0}
+  details{border-bottom:1px solid var(--line)}
+  details:last-child{border-bottom:none}
+  summary{padding:15px 20px; font-weight:500; cursor:pointer; list-style:none; position:relative}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+"; position:absolute; right:20px; color:var(--purple); font-size:20px; line-height:1}
+  details[open] summary::after{content:"–"}
+  .faq p{margin:0 20px 16px; color:var(--sub)}
+  a{color:var(--purple)}
+  footer{color:var(--sub); font-size:13px; margin-top:40px; border-top:1px solid var(--line); padding-top:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><img class="dot" src="icon.png" alt="">青羽记账 · Quillion</div>
+    <h1>支持与帮助</h1>
+    <p class="meta">遇到问题或有想法，欢迎随时联系我们。</p>
+  </header>
+
+  <div class="contact">
+    <div class="row">
+      <span>联系邮箱</span>
+      <a href="mailto:qingyu_bookkeeping@163.com">qingyu_bookkeeping@163.com</a>
+    </div>
+    <p class="hint">我们会尽快回复。反馈 Bug 时，附上机型与 iOS 版本能帮我们更快定位。</p>
+  </div>
+
+  <h2>常见问题</h2>
+  <div class="faq">
+    <details open>
+      <summary>怎么快速记一笔？</summary>
+      <p>在首页点「记一笔」用键盘输入金额、选分类即可；也可以点「说一笔」，说一句「咖啡 18 块」，青羽会自动识别金额、分类和备注。记完点「再记」可连续记下一笔，不打断。</p>
+    </details>
+    <details>
+      <summary>语音记账会上传我的录音吗？</summary>
+      <p>支持的较新机型在设备端离线转写，音频不离开手机；较旧机型会借助 Apple 的语音服务处理。无论哪种方式，青羽自身都不存储、不上传、不分析你的音频。详见<a href="privacy.html">隐私政策</a>。</p>
+    </details>
+    <details>
+      <summary>怎么导入微信、支付宝账单？</summary>
+      <p>在「我的 → 账单管理」中选择导入，按页面指引从微信/支付宝导出账单文件后选择即可。青羽会自动归类（餐饮、交通、人情等），解析全程在本地完成，不上传任何数据。</p>
+    </details>
+    <details>
+      <summary>我的数据安全吗？换手机会丢吗？</summary>
+      <p>所有数据只存在你的设备本地，并启用了 iOS 最高文件保护等级。换手机时，只要你开启了 iCloud 备份，数据会随系统备份一起迁移到新设备。</p>
+    </details>
+    <details>
+      <summary>可以给 App 加锁吗？</summary>
+      <p>可以。在「我的 → 安全 → 应用锁」开启后，每次进入青羽需通过 Face ID / Touch ID 或设备密码，多一层隐私保护。该功能完全在本地，不联网。</p>
+    </details>
+    <details>
+      <summary>是订阅制吗？有试用吗？</summary>
+      <p>青羽是一次性买断，没有订阅、没有续费。新用户有免费试用期，到期后一次购买即可永久使用。</p>
+    </details>
+    <details>
+      <summary>分类可以自定义吗？</summary>
+      <p>可以。在「我的 → 分类管理」中可以新增、排序、修改分类的名称和图标。此外，你记账时填过的备注会被青羽学习，下次出现相同字眼会自动归到对应分类。</p>
+    </details>
+    <details>
+      <summary>购买后换设备，怎么恢复？</summary>
+      <p>用同一个 Apple ID 登录，在解锁页点「恢复购买」即可。买断权益绑定在你的 Apple ID 上。</p>
+    </details>
+  </div>
+
+  <footer>
+    © 2026 青羽记账（Quillion）. 本页为青羽记账的官方支持页面，可作为 App Store 提交所需的支持链接。
+  </footer>
+</div>
+</body>
+</html>

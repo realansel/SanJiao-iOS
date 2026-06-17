@@ -24,7 +24,7 @@ enum KeychainHelper {
         let query: [CFString: Any] = [
             kSecClass:       kSecClassGenericPassword,
             kSecAttrAccount: key,
-            kSecAttrService: "com.yuezhang.app"
+            kSecAttrService: "app.qingyu.ios"
         ]
         SecItemDelete(query as CFDictionary)
     }
@@ -35,7 +35,7 @@ enum KeychainHelper {
         let query: [CFString: Any] = [
             kSecClass:            kSecClassGenericPassword,
             kSecAttrAccount:      key,
-            kSecAttrService:      "com.yuezhang.app",
+            kSecAttrService:      "app.qingyu.ios",
             kSecValueData:        data,
             kSecAttrAccessible:   kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         ]
@@ -47,7 +47,7 @@ enum KeychainHelper {
         let query: [CFString: Any] = [
             kSecClass:        kSecClassGenericPassword,
             kSecAttrAccount:  key,
-            kSecAttrService:  "com.yuezhang.app",
+            kSecAttrService:  "app.qingyu.ios",
             kSecReturnData:   true,
             kSecMatchLimit:   kSecMatchLimitOne
         ]

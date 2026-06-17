@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B8A1F85DAEDC30A096C781D7"
-               BuildableName = "YueJian.app"
-               BlueprintName = "YueJian"
-               ReferencedContainer = "container:YueJian.xcodeproj">
+               BuildableName = "Qingyu_Quillion.app"
+               BlueprintName = "Qingyu_Quillion"
+               ReferencedContainer = "container:Qingyu_Quillion.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,9 +46,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B8A1F85DAEDC30A096C781D7"
-            BuildableName = "YueJian.app"
-            BlueprintName = "YueJian"
-            ReferencedContainer = "container:YueJian.xcodeproj">
+            BuildableName = "Qingyu_Quillion.app"
+            BlueprintName = "Qingyu_Quillion"
+            ReferencedContainer = "container:Qingyu_Quillion.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -63,9 +63,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B8A1F85DAEDC30A096C781D7"
-            BuildableName = "YueJian.app"
-            BlueprintName = "YueJian"
-            ReferencedContainer = "container:YueJian.xcodeproj">
+            BuildableName = "Qingyu_Quillion.app"
+            BlueprintName = "Qingyu_Quillion"
+            ReferencedContainer = "container:Qingyu_Quillion.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

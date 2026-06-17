@@ -12,7 +12,7 @@ struct PrivacyStatementView: View {
                         .font(.system(size: 24, weight: .bold))
                         .foregroundStyle(.appPrimary)
                         .tracking(-0.5)
-                    Text("三秒·记一笔 不需要你的任何隐私数据")
+                    Text("青羽记账不需要你的任何隐私数据")
                         .font(.system(size: 14))
                         .foregroundStyle(.appSecondary)
                 }
@@ -21,28 +21,28 @@ struct PrivacyStatementView: View {
 
                 privacyItem(
                     icon: "iphone",
-                    title: String(localized: "数据保存在你的设备上"),
-                    body: String(localized: "所有账单数据由 SwiftData 存储在设备本地。悦笺没有服务器，不会将你的账单上传到任何地方。若你开启了 iCloud 备份，这些数据会随 iOS 系统备份一同加密存储——该过程由你的系统设置控制。")
+                    title: String(localized: "数据只在设备上"),
+                    body: String(localized: "所有账单存储在设备本地，青羽没有服务器。开启 iCloud 备份后，数据随系统备份加密存储，由你的系统设置控制。")
                 )
                 privacyItem(
                     icon: "lock.shield",
-                    title: String(localized: "设备级加密保护"),
-                    body: String(localized: "账单数据库在磁盘上始终以密文存储，并启用了 iOS 最高的文件保护等级。设备锁屏后，解密密钥会从内存中清除，此时数据无法被读取——前提是你为设备设置了锁屏密码。")
+                    title: String(localized: "设备级加密"),
+                    body: String(localized: "账单数据库始终以密文存储，启用了 iOS 最高文件保护等级。锁屏后解密密钥从内存清除，需设置锁屏密码方可生效。")
                 )
                 privacyItem(
                     icon: "waveform",
-                    title: String(localized: "语音转写优先在本机完成"),
-                    body: String(localized: "使用语音记账时，支持的机型会在设备端完成转写，音频不会离开你的手机；较旧的机型会借助 Apple 的语音服务转写。无论哪种方式，悦笺都不会保存或上传音频。")
+                    title: String(localized: "语音转写，本机优先"),
+                    body: String(localized: "支持的机型在设备端离线转写，音频不离开手机；较旧机型会经 Apple 语音服务处理。首次使用时 iOS 会弹出系统授权提示（含 Apple 的标准说明）。青羽自身从不存储、上传或分析你的音频。")
                 )
                 privacyItem(
                     icon: "nosign",
-                    title: String(localized: "没有广告，没有追踪"),
-                    body: String(localized: "悦笺不含任何广告、第三方分析工具或追踪 SDK，整个应用只使用 Apple 提供的系统框架。我们不收集、也不分析你的使用行为。")
+                    title: String(localized: "无广告，无追踪"),
+                    body: String(localized: "不含任何广告或第三方追踪 SDK，仅使用 Apple 系统框架。不收集、不分析任何使用行为。")
                 )
                 privacyItem(
                     icon: "creditcard",
-                    title: String(localized: "一次买断，不靠数据盈利"),
-                    body: String(localized: "悦笺通过一次性购买收费。我们的收入与你的数据完全无关，因此没有任何动机去收集或变现它。")
+                    title: String(localized: "一次买断"),
+                    body: String(localized: "青羽通过一次性购买收费，收入与你的数据无关，没有任何动机收集或变现它。")
                 )
 
                 Spacer(minLength: 40)
