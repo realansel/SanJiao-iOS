@@ -1362,7 +1362,7 @@ struct FrequencyDistributionChart: View {
                         // 柱子区——只在 0 值时显示 baseline，避免多柱底连成视觉分割线
                         ZStack(alignment: .bottom) {
                             if value(for: bucket) > 0 {
-                                RoundedRectangle(cornerRadius: 8)
+                                Capsule()
                                     .fill(selectedBucket?.id == bucket.id ? Color.appAccent : Color.appAccent.opacity(0.16))
                                     .frame(height: barHeight(for: bucket))
                                     .animation(.spring(response: 0.25, dampingFraction: 0.8), value: selectedBucket?.id)
@@ -1373,8 +1373,8 @@ struct FrequencyDistributionChart: View {
                                     .frame(height: 3)
                             }
                         }
-                        // 限制柱子最大宽度——避免少 bucket 时柱子变成砖块
-                        .frame(maxWidth: 40)
+                        // 限制柱子最大宽度——与六周趋势一致的纤细比例
+                        .frame(maxWidth: 32)
                         .frame(height: chartBarMaxHeight, alignment: .bottom)
 
                         Text(bucket.label)

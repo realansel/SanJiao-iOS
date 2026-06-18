@@ -583,13 +583,7 @@ struct EmptyStateIcon: View {
                 .frame(width: 74, height: 74)
                 .overlay(
                     Circle()
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [Color.white.opacity(0.65), Color.white.opacity(0.05)],
-                                startPoint: .top, endPoint: .bottom
-                            ),
-                            lineWidth: 1
-                        )
+                        .strokeBorder(Color.appAccent.opacity(0.1), lineWidth: 0.5)
                 )
                 .shadow(color: Color.appAccent.opacity(0.18), radius: 12, y: 5)
             // 品牌渐变填充的符号
