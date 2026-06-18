@@ -560,3 +560,42 @@ struct TransactionDateEditSheet: View {
         .presentationBackground(Color.appBg)
     }
 }
+
+// MARK: - 空状态图标徽章（记录/账单/统计 共用，亮暗都通透有层次）
+/// 极淡光晕 + 渐变柔色圆底 + 柔投影 + 品牌渐变填充的符号——比纯色平铺更有质感。
+struct EmptyStateIcon: View {
+    let systemName: String
+
+    var body: some View {
+        ZStack {
+            // 外圈极淡光晕，增加纵深
+            Circle()
+                .fill(Color.appAccent.opacity(0.06))
+                .frame(width: 100, height: 100)
+            // 渐变柔色圆底 + 顶部玻璃高光描边 + 柔投影
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [Color.appAccentSoft, Color.appAccentSoft.opacity(0.5)],
+                        startPoint: .top, endPoint: .bottom
+                    )
+                )
+                .frame(width: 74, height: 74)
+                .overlay(
+                    Circle()
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [Color.white.opacity(0.65), Color.white.opacity(0.05)],
+                                startPoint: .top, endPoint: .bottom
+                            ),
+                            lineWidth: 1
+                        )
+                )
+                .shadow(color: Color.appAccent.opacity(0.18), radius: 12, y: 5)
+            // 品牌渐变填充的符号
+            Image(systemName: systemName)
+                .font(.system(size: 30, weight: .medium))
+                .foregroundStyle(LinearGradient.accentGradient)
+        }
+    }
+}

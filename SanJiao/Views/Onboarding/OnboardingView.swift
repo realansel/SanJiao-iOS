@@ -13,7 +13,7 @@ struct OnboardingView: View {
             LinearGradient(
                 colors: [
                     Color.appAccent.opacity(0.18),
-                    Color(hex: "F7F7FC"),
+                    Color.appCard,
                     Color.appBg
                 ],
                 startPoint: .topLeading,
@@ -22,7 +22,7 @@ struct OnboardingView: View {
             .ignoresSafeArea()
 
             Circle()
-                .fill(Color.white.opacity(0.55))
+                .fill(Color.appCard.opacity(0.5))
                 .frame(width: 280, height: 280)
                 .blur(radius: 52)
                 .offset(x: 92, y: -260)
@@ -63,10 +63,10 @@ struct OnboardingView: View {
                 .padding(.vertical, 22)
                 .background(
                     RoundedRectangle(cornerRadius: 28)
-                        .fill(Color.white.opacity(0.84))
+                        .fill(Color.appCard.opacity(0.92))
                         .overlay(
                             RoundedRectangle(cornerRadius: 28)
-                                .strokeBorder(Color.white.opacity(0.72), lineWidth: 1)
+                                .strokeBorder(Color.appSeparator, lineWidth: 1)
                         )
                         .shadow(color: Color.black.opacity(0.06), radius: 18, y: 10)
                 )
@@ -81,10 +81,10 @@ struct OnboardingView: View {
                             .padding(.vertical, 9)
                             .background(
                                 RoundedRectangle(cornerRadius: 20)
-                                    .fill(Color.white.opacity(0.65))
+                                    .fill(Color.appCard.opacity(0.7))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 20)
-                                            .strokeBorder(Color.white.opacity(0.92), lineWidth: 1)
+                                            .strokeBorder(Color.appSeparator, lineWidth: 1)
                                     )
                             )
                     }
@@ -112,11 +112,11 @@ struct OnboardingView: View {
                             .foregroundStyle(.appPrimary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
-                            .background(Color.white.opacity(0.82))
+                            .background(Color.appCard.opacity(0.85))
                             .clipShape(RoundedRectangle(cornerRadius: 18))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 18)
-                                    .strokeBorder(Color.white.opacity(0.95), lineWidth: 1)
+                                    .strokeBorder(Color.appSeparator, lineWidth: 1)
                             )
                     }
                     .buttonStyle(.plain)
@@ -184,7 +184,7 @@ struct OnboardingView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 13)
-        .background(Color(hex: "F7F7FC"))
+        .background(Color.appBg)
         .clipShape(RoundedRectangle(cornerRadius: 18))
     }
 }

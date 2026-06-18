@@ -262,8 +262,10 @@ struct TodayView: View {
                 } label: {
                     HStack(spacing: 7) {
                         if unlockManager.canRecord {
-                            FeatherMark()
-                                .frame(width: 15, height: 21)
+                            Image("FeatherGlyph")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 24, height: 24)
                         } else {
                             Image(systemName: "lock.fill")
                                 .font(.system(size: 14, weight: .semibold))
@@ -888,23 +890,21 @@ struct TodayEmptyView: View {
     let mode: TodayMetricMode
 
     var body: some View {
-        VStack(spacing: 0) {
-            Text(hasAnyTransactions ? "🌤️" : "🪙")
-                .font(.system(size: 40))
-                .opacity(0.55)
-                .padding(.bottom, 14)
+        VStack(spacing: 10) {
+            EmptyStateIcon(systemName: hasAnyTransactions ? "sun.max" : "square.and.pencil")
+                .padding(.bottom, 4)
 
             Text(emptyTitle)
-                .font(.system(size: 16, weight: .semibold))
+                .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(.appSecondary)
-                .padding(.bottom, 8)
 
-            Text(emptyMessage)
-                .font(.system(size: 13))
-                .foregroundStyle(.appTertiary)
-                .multilineTextAlignment(.center)
-                .lineSpacing(2)
-                .padding(.horizontal, 20)
+            // 无任何数据时不显示副文案——该提示由上方日均进度条负责，避免重复
+            if let emptyMessage {
+                Text(emptyMessage)
+                    .font(.system(size: 13))
+                    .foregroundStyle(.appTertiary)
+                    .multilineTextAlignment(.center)
+            }
         }
         .padding(.top, hasAnyTransactions ? 72 : 52)
         .padding(.bottom, 28)
@@ -914,25 +914,24 @@ struct TodayEmptyView: View {
 
     private var emptyTitle: String {
         if !hasAnyTransactions {
-            return String(localized: "还没有账单记录")
+            return String(localized: "开始第一笔记账吧")
         }
         switch mode {
         case .today:
-            return String(localized: "今天还没开始记录")
+            return String(localized: "今天还没记账")
         case .month:
-            return String(localized: "这个月还没有账单")
+            return String(localized: "这个月还没记账")
         }
     }
 
-    private var emptyMessage: String {
-        if !hasAnyTransactions {
-            return String(localized: "记下几笔后，这里会慢慢出现你的今日与本月参考。")
-        }
+    private var emptyMessage: String? {
+        // 无任何数据：交给上方日均进度条提示，这里不重复
+        if !hasAnyTransactions { return nil }
         switch mode {
         case .today:
-            return String(localized: "今天的消费会出现在这里。")
+            return String(localized: "随手记一笔，今天就有迹可循")
         case .month:
-            return String(localized: "切到本月时，这里会展示你这个月的账单。")
+            return String(localized: "记一笔，慢慢看清这个月的消费")
         }
     }
 }
@@ -940,64 +939,3 @@ struct TodayEmptyView: View {
 // MARK: - Shared empty state (kept for backward-compat in BillView)
 typealias EmptyStateView = TodayEmptyView
 
-// MARK: - 品牌羽毛小标（复用 App 图标的双羽片 + 羽轴几何，矢量绘制，用于「记一笔」按钮）
-struct FeatherMark: View {
-    var tint: Color = .white
-    /// 羽轴——在白羽片上压一条深紫细线当中脉，呼应图标里"羽身上的轴"
-    var ribColor: Color = Color(hex: "5143EF")
-
-    var body: some View {
-        Canvas { ctx, size in
-            let rect = CGRect(origin: .zero, size: size)
-
-            var vanes = Path()
-            // 左羽片
-            vanes.move(to: CGPoint(x: -6, y: 150))
-            vanes.addCurve(to: CGPoint(x: -14, y: -180), control1: CGPoint(x: -88, y: 104), control2: CGPoint(x: -96, y: -30))
-            vanes.addLine(to: CGPoint(x: 0, y: -190))
-            vanes.addCurve(to: CGPoint(x: 2, y: 60), control1: CGPoint(x: 2, y: -120), control2: CGPoint(x: 4, y: -20))
-            vanes.addCurve(to: CGPoint(x: -2, y: 152), control1: CGPoint(x: 1, y: 100), control2: CGPoint(x: 0, y: 130))
-            vanes.closeSubpath()
-            // 右羽片
-            vanes.move(to: CGPoint(x: 2, y: 152))
-            vanes.addCurve(to: CGPoint(x: 8, y: -182), control1: CGPoint(x: 76, y: 104), control2: CGPoint(x: 86, y: -28))
-            vanes.addLine(to: CGPoint(x: 0, y: -190))
-            vanes.addCurve(to: CGPoint(x: 2, y: 70), control1: CGPoint(x: 2, y: -110), control2: CGPoint(x: 4, y: -10))
-            vanes.addCurve(to: CGPoint(x: -2, y: 152), control1: CGPoint(x: 1, y: 110), control2: CGPoint(x: 0, y: 135))
-            vanes.closeSubpath()
-
-            // 羽轴整条——含露在羽片下方的笔尖
-            var shaft = Path()
-            shaft.move(to: CGPoint(x: 0, y: -190))
-            shaft.addCurve(to: CGPoint(x: 2, y: 80), control1: CGPoint(x: 4, y: -100), control2: CGPoint(x: 5, y: 0))
-            shaft.addCurve(to: CGPoint(x: -2, y: 185), control1: CGPoint(x: 1, y: 120), control2: CGPoint(x: 0, y: 150))
-
-            // 羽身中脉——只在白羽片范围内（不伸到笔尖），压深紫给内部定义
-            var rib = Path()
-            rib.move(to: CGPoint(x: 1, y: -158))
-            rib.addCurve(to: CGPoint(x: 1, y: 134), control1: CGPoint(x: 4, y: -60), control2: CGPoint(x: 3, y: 64))
-
-            // 以羽片包围盒等比缩放居中；留旋转余量后整体倾斜 ~14° 呼应图标
-            let b = vanes.boundingRect
-            let scale = min(rect.width / b.width, rect.height / b.height) * 0.86
-            let t = CGAffineTransform.identity
-                .translatedBy(x: rect.midX, y: rect.midY)
-                .rotated(by: 0.24)
-                .scaledBy(x: scale, y: scale)
-                .translatedBy(x: -b.midX, y: -b.midY)
-
-            ctx.fill(vanes.applying(t), with: .color(tint))
-            // 羽轴描白：盖在白羽片上不可见，露出的笔尖在紫底上清晰
-            ctx.stroke(
-                shaft.applying(t),
-                with: .color(tint),
-                style: StrokeStyle(lineWidth: max(size.width * 0.08, 1), lineCap: .round)
-            )
-            ctx.stroke(
-                rib.applying(t),
-                with: .color(ribColor),
-                style: StrokeStyle(lineWidth: max(size.width * 0.07, 1), lineCap: .round)
-            )
-        }
-    }
-}

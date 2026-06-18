@@ -4,112 +4,6 @@
     "" : {
 
     },
-    "安全" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Security" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "安全" } }
-      }
-    },
-    "应用锁" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Lock" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "應用鎖" } }
-      }
-    },
-    "用 Face ID 或密码进入青羽" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use Face ID or passcode to open Quillion" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "用 Face ID 或密碼進入青羽" } }
-      }
-    },
-    "青羽记账已锁定" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quillion is locked" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "青羽記帳已鎖定" } }
-      }
-    },
-    "输入手机密码" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter passcode" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "輸入手機密碼" } }
-      }
-    },
-    "解锁青羽记账" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unlock Quillion" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "解鎖青羽記帳" } }
-      }
-    },
-    "语音" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Voice" }
-        },
-        "zh-Hant" : {
-          "stringUnit" : { "state" : "translated", "value" : "語音" }
-        }
-      }
-    },
-    "说一笔" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Voice Entry" }
-        },
-        "zh-Hant" : {
-          "stringUnit" : { "state" : "translated", "value" : "說一筆" }
-        }
-      }
-    },
-    "说出金额和用途，例如「咖啡 18 块」" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Say the amount and what it's for, e.g. “coffee 18”" }
-        },
-        "zh-Hant" : {
-          "stringUnit" : { "state" : "translated", "value" : "說出金額和用途，例如「咖啡 18 塊」" }
-        }
-      }
-    },
-    "没听清金额" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Didn't catch the amount" }
-        },
-        "zh-Hant" : {
-          "stringUnit" : { "state" : "translated", "value" : "沒聽清金額" }
-        }
-      }
-    },
-    "重说" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Redo" }
-        },
-        "zh-Hant" : {
-          "stringUnit" : { "state" : "translated", "value" : "重說" }
-        }
-      }
-    },
-    "确认记账" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Confirm" }
-        },
-        "zh-Hant" : {
-          "stringUnit" : { "state" : "translated", "value" : "確認記帳" }
-        }
-      }
-    },
-    "手动修改" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Edit manually" }
-        },
-        "zh-Hant" : {
-          "stringUnit" : { "state" : "translated", "value" : "手動修改" }
-        }
-      }
-    },
     " 天" : {
       "localizations" : {
         "en" : {
@@ -133,6 +27,9 @@
 
     },
     "、" : {
+
+    },
+    "·" : {
 
     },
     "'%@" : {
@@ -498,9 +395,6 @@
     "⏰" : {
 
     },
-    "☀️" : {
-
-    },
     "⚡ %@ 秒" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -538,16 +432,7 @@
     "⭐" : {
 
     },
-    "🌤️" : {
-
-    },
     "💌" : {
-
-    },
-    "📊" : {
-
-    },
-    "📒" : {
 
     },
     "📖" : {
@@ -556,10 +441,10 @@
     "🔍" : {
 
     },
-    "🔒" : {
+    "🔐" : {
 
     },
-    "🪙" : {
+    "🔒" : {
 
     },
     "¥" : {
@@ -632,18 +517,18 @@
         }
       }
     },
-    "青羽记账不需要你的任何隐私数据" : {
+    "一次买断 · 永久使用 · 无订阅" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quillion needs none of your personal data"
+            "value" : "One-time purchase · Lifetime · No subscription"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "青羽記帳不需要你的任何隱私資料"
+            "value" : "一次買斷 · 永久使用 · 無訂閱"
           }
         }
       }
@@ -783,6 +668,22 @@
         }
       }
     },
+    "不含任何广告或第三方追踪 SDK，仅使用 Apple 系统框架。不收集、不分析任何使用行为。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No ads or third-party tracking SDKs — only Apple system frameworks. No usage behavior is collected or analyzed."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不含任何廣告或第三方追蹤 SDK，僅使用 Apple 系統框架。不收集、不分析任何使用行為。"
+          }
+        }
+      }
+    },
     "不支持的文件格式。\n青羽支持微信支付 CSV / XLSX、支付宝 CSV、青羽备份 CSV，请重新选择对应文件。" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -845,23 +746,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "交通"
-          }
-        }
-      }
-    },
-    "母婴" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Baby"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "母嬰"
           }
         }
       }
@@ -1069,6 +953,7 @@
       }
     },
     "今天的消费会出现在这里。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1119,6 +1004,7 @@
       }
     },
     "今天还没开始记录" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1181,6 +1067,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "今天還沒花錢，錢包在放空"
+          }
+        }
+      }
+    },
+    "今天还没记账" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing logged today yet"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天還沒記帳"
           }
         }
       }
@@ -1283,7 +1185,24 @@
         }
       }
     },
+    "你已记录 %lld 笔 —— 继续看清自己的消费" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You've logged %lld entries — keep seeing your spending clearly"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你已記錄 %lld 筆 —— 繼續看清自己的消費"
+          }
+        }
+      }
+    },
     "你已记录了 %lld 笔，继续了解你的消费" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1328,22 +1247,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你的第 %d 筆記帳"
-          }
-        }
-      }
-    },
-    "支持的机型在设备端离线转写，音频不离开手机；较旧机型会经 Apple 语音服务处理。首次使用时 iOS 会弹出系统授权提示（含 Apple 的标准说明）。青羽自身从不存储、上传或分析你的音频。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supported devices transcribe offline — audio stays on your phone; older devices use Apple’s speech service. On first use iOS shows a standard system permission notice from Apple. Quillion itself never stores, uploads, or analyzes your audio."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "支援的機型在裝置端離線轉寫，音訊不離開手機；較舊機型會經 Apple 語音服務處理。首次使用時 iOS 會彈出系統授權提示（含 Apple 的標準說明）。青羽自身從不儲存、上傳或分析你的音訊。"
           }
         }
       }
@@ -1783,6 +1686,7 @@
       }
     },
     "切到本月时，这里会展示你这个月的账单。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2782,6 +2686,22 @@
         }
       }
     },
+    "安全" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Security"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "安全"
+          }
+        }
+      }
+    },
     "安全与隐私" : {
       "localizations" : {
         "en" : {
@@ -3362,6 +3282,38 @@
         }
       }
     },
+    "应用锁" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Lock"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "應用鎖"
+          }
+        }
+      }
+    },
+    "开始第一笔记账吧" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Record your first entry"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開始第一筆記帳吧"
+          }
+        }
+      }
+    },
     "当前：%@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3650,6 +3602,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "所有帳單儲存在裝置本機，青羽沒有伺服器。開啟 iCloud 備份後，資料隨系統備份加密儲存，由你的系統設定控制。"
+          }
+        }
+      }
+    },
+    "手动修改" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit manually"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手動修改"
           }
         }
       }
@@ -4008,6 +3976,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "支持"
+          }
+        }
+      }
+    },
+    "支持的机型在设备端离线转写，音频不离开手机；较旧机型会经 Apple 语音服务处理。首次使用时 iOS 会弹出系统授权提示（含 Apple 的标准说明）。青羽自身从不存储、上传或分析你的音频。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supported devices transcribe offline — audio stays on your phone; older devices use Apple’s speech service. On first use iOS shows a standard system permission notice from Apple. Quillion itself never stores, uploads, or analyzes your audio."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支援的機型在裝置端離線轉寫，音訊不離開手機；較舊機型會經 Apple 語音服務處理。首次使用時 iOS 會彈出系統授權提示（含 Apple 的標準說明）。青羽自身從不儲存、上傳或分析你的音訊。"
           }
         }
       }
@@ -4372,6 +4356,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "旅遊"
+          }
+        }
+      }
+    },
+    "无广告，无追踪" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No ads, no tracking"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無廣告，無追蹤"
           }
         }
       }
@@ -5831,6 +5831,23 @@
         }
       }
     },
+    "母婴" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Baby"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "母嬰"
+          }
+        }
+      }
+    },
     "比参考线略低 (-%d%%)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5888,6 +5905,22 @@
     "比日均多了一点 (+%lld%%)" : {
 
     },
+    "没听清金额" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Didn't catch the amount"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒聽清金額"
+          }
+        }
+      }
+    },
     "没有任何第三方 SDK 或用户行为分析" : {
       "localizations" : {
         "en" : {
@@ -5900,22 +5933,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "沒有任何第三方 SDK 或使用者行為分析"
-          }
-        }
-      }
-    },
-    "无广告，无追踪" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No ads, no tracking"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "無廣告，無追蹤"
           }
         }
       }
@@ -6130,6 +6147,22 @@
         }
       }
     },
+    "用 Face ID 或密码进入青羽" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use Face ID or passcode to open Quillion"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用 Face ID 或密碼進入青羽"
+          }
+        }
+      }
+    },
     "看看这个月最常出现的消费" : {
       "localizations" : {
         "en" : {
@@ -6206,6 +6239,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "確認清空所有資料？"
+          }
+        }
+      }
+    },
+    "确认记账" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "確認記帳"
+          }
+        }
+      }
+    },
+    "立即解锁" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock now"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "立即解鎖"
           }
         }
       }
@@ -6619,7 +6684,24 @@
         }
       }
     },
+    "解锁完整版青羽" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock the full Quillion"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "解鎖完整版青羽"
+          }
+        }
+      }
+    },
     "解锁青羽" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6647,6 +6729,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "解鎖青羽，繼續記錄你的消費"
+          }
+        }
+      }
+    },
+    "解锁青羽记账" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock Quillion"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "解鎖青羽記帳"
           }
         }
       }
@@ -6684,6 +6782,22 @@
         }
       }
     },
+    "记一笔，慢慢看清这个月的消费" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log entries to see this month clearly"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記一筆，慢慢看清這個月的消費"
+          }
+        }
+      }
+    },
     "记下了第一笔，节奏不重" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6702,6 +6816,7 @@
       }
     },
     "记下几笔后，这里会慢慢出现你的今日与本月参考。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6898,6 +7013,22 @@
         }
       }
     },
+    "试用期还剩 %d 天" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d days left in trial"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "試用期還剩 %d 天"
+          }
+        }
+      }
+    },
     "试用期还剩 %lld 天" : {
       "localizations" : {
         "en" : {
@@ -6914,6 +7045,22 @@
         }
       }
     },
+    "语音" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voice"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "語音"
+          }
+        }
+      }
+    },
     "语音转写，本机优先" : {
       "localizations" : {
         "en" : {
@@ -6926,6 +7073,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "語音轉寫，本機優先"
+          }
+        }
+      }
+    },
+    "说一笔" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voice Entry"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "說一筆"
+          }
+        }
+      }
+    },
+    "说出金额和用途，例如「咖啡 18 块」" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Say the amount and what it's for, e.g. “coffee 18”"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "說出金額和用途，例如「咖啡 18 塊」"
           }
         }
       }
@@ -7309,6 +7488,22 @@
         }
       }
     },
+    "输入手机密码" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "輸入手機密碼"
+          }
+        }
+      }
+    },
     "过去 %lld 天" : {
       "localizations" : {
         "en" : {
@@ -7424,6 +7619,7 @@
       }
     },
     "还没有账单记录" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -7538,6 +7734,7 @@
       }
     },
     "这个月还没有账单" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -7549,6 +7746,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "這個月還沒有帳單"
+          }
+        }
+      }
+    },
+    "这个月还没记账" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing logged this month yet"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這個月還沒記帳"
           }
         }
       }
@@ -7830,6 +8043,22 @@
         }
       }
     },
+    "重说" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redo"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重說"
+          }
+        }
+      }
+    },
     "金额" : {
       "localizations" : {
         "en" : {
@@ -7912,6 +8141,38 @@
         }
       }
     },
+    "隐私政策" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy Policy"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隱私政策"
+          }
+        }
+      }
+    },
+    "随手记一笔，今天就有迹可循" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log one entry and today starts to add up"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隨手記一筆，今天就有跡可循"
+          }
+        }
+      }
+    },
     "零广告，零追踪" : {
       "localizations" : {
         "en" : {
@@ -7961,22 +8222,6 @@
         }
       }
     },
-    "不含任何广告或第三方追踪 SDK，仅使用 Apple 系统框架。不收集、不分析任何使用行为。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No ads or third-party tracking SDKs — only Apple system frameworks. No usage behavior is collected or analyzed."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "不含任何廣告或第三方追蹤 SDK，僅使用 Apple 系統框架。不收集、不分析任何使用行為。"
-          }
-        }
-      }
-    },
     "青羽备份" : {
       "localizations" : {
         "en" : {
@@ -8005,6 +8250,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "青羽已解鎖"
+          }
+        }
+      }
+    },
+    "青羽记账不需要你的任何隐私数据" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quillion needs none of your personal data"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "青羽記帳不需要你的任何隱私資料"
+          }
+        }
+      }
+    },
+    "青羽记账已锁定" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quillion is locked"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "青羽記帳已鎖定"
           }
         }
       }

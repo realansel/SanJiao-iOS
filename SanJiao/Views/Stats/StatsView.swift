@@ -33,12 +33,10 @@ struct StatsView: View {
                         ScrollOffsetDetector(offset: $scrollOffset)
                             .frame(height: 0)
 
-                        // 完整头部——滚动超过阈值时淡出并塌缩高度
+                        // 完整头部——随滚动自然移出屏幕；不再用 isCollapsed 改它的高度，
+                        // 否则"滚动→高度塌缩→内容变短→回弹→头部复原"会形成抖动回弹环。
+                        // 折叠后的紧凑控件交给导航栏的 compactStickyBar 呈现。
                         fullHeader
-                            .opacity(isCollapsed ? 0 : 1)
-                            .frame(maxHeight: isCollapsed ? 0 : nil, alignment: .top)
-                            .clipped()
-                            .animation(.easeInOut(duration: 0.18), value: isCollapsed)
 
                         if allTransactions.isEmpty {
                             statsEmptyView(viewportHeight: viewport.size.height)
@@ -213,10 +211,8 @@ struct StatsView: View {
 
     @ViewBuilder private func statsEmptyView(viewportHeight: CGFloat) -> some View {
         VStack(spacing: 10) {
-            // 与「记录」🪙 / 「账单」📒 一致的全彩 emoji 风格
-            Text("📊")
-                .font(.system(size: 40))
-                .opacity(0.45)
+            EmptyStateIcon(systemName: "chart.bar.xaxis")
+                .padding(.bottom, 4)
             Text(String(localized: "还没有统计数据"))
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(.appSecondary)

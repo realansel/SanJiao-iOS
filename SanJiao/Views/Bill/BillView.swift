@@ -643,9 +643,8 @@ struct DayGroup: View {
 struct BillEmptyView: View {
     var body: some View {
         VStack(spacing: 10) {
-            Text("📒")
-                .font(.system(size: 40))
-                .opacity(0.3)
+            EmptyStateIcon(systemName: "doc.text")
+                .padding(.bottom, 4)
             Text("本月还没有记录")
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(.appSecondary)
