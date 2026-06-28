@@ -124,7 +124,7 @@ struct PaywallView: View {
                         HStack(spacing: 8) {
                             Text("立即解锁").font(.system(size: 17, weight: .semibold))
                             Text("·").opacity(0.5)
-                            Text(unlock.product?.displayPrice ?? "¥25").font(.system(size: 17, weight: .semibold))
+                            Text(unlock.product?.displayPrice ?? "¥28").font(.system(size: 17, weight: .semibold))
                         }
                     }
                 }

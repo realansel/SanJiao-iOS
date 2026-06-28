@@ -66,9 +66,13 @@ struct QingyuApp: App {
         .modelContainer(sharedModelContainer)
         .onChange(of: scenePhase) { _, phase in
             switch phase {
-            case .background: appLock.lockOnBackground()  // 退后台→标记需重新解锁
-            case .active:     appLock.authenticate()      // 回前台→自动唤起认证
-            default:          break
+            case .background:
+                appLock.lockOnBackground()                 // 退后台→标记需重新解锁
+            case .active:
+                appLock.authenticate()                     // 回前台→自动唤起认证
+                Task { await unlockManager.refreshEntitlements() }  // 回前台→重新核对购买(促销码等)
+            default:
+                break
             }
         }
     }

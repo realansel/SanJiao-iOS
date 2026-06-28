@@ -49,10 +49,35 @@ final class UnlockManager {
         return d == 0 ? "今天是最后一天" : "试用期还剩 \(d) 天"
     }
 
+    private var updatesTask: Task<Void, Never>?
+
     // MARK: - Init
 
     init() {
+        updatesTask = listenForTransactions()
         Task { await setup() }
+    }
+
+    deinit { updatesTask?.cancel() }
+
+    /// 监听 App Store 侧到达的交易——促销码兑换、其它设备购买、Ask to Buy 批准等
+    /// 都通过 Transaction.updates 推送进来，保证 app 运行中也能即时解锁。
+    private func listenForTransactions() -> Task<Void, Never> {
+        Task.detached { [weak self] in
+            for await result in StoreKit.Transaction.updates {
+                guard let self else { continue }
+                if case .verified(let tx) = result, tx.productID == Self.productID {
+                    await tx.finish()
+                    await MainActor.run { self.state = .unlocked }
+                }
+            }
+        }
+    }
+
+    /// 回前台 / 兑换后重新核对权益——只升级到已解锁，不会把已解锁降级。
+    @MainActor
+    func refreshEntitlements() async {
+        if await hasPurchased() { state = .unlocked }
     }
 
     // MARK: - Setup

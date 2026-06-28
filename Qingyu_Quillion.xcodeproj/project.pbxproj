@@ -31,9 +31,9 @@
 		E701122F2F9490A8005896B3 /* BillImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E701122E2F9490A8005896B3 /* BillImportView.swift */; };
 		E70112332F94A24F005896B3 /* CategoryPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E70112322F94A24F005896B3 /* CategoryPickerSheet.swift */; };
 		E7517E422FBEE82700CF8466 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = E7517E412FBEE82700CF8466 /* Localizable.xcstrings */; };
-		E7KC000000000011 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7KC000000000001 /* KeychainHelper.swift */; };
-		E7AP000000000011 /* AmountParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7AP000000000001 /* AmountParser.swift */; };
 		E7AL000000000011 /* AppLockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7AL000000000001 /* AppLockManager.swift */; };
+		E7AP000000000011 /* AmountParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7AP000000000001 /* AmountParser.swift */; };
+		E7KC000000000011 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7KC000000000001 /* KeychainHelper.swift */; };
 		E7KC000000000012 /* UnlockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7KC000000000002 /* UnlockManager.swift */; };
 		E7KC000000000013 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7KC000000000003 /* PaywallView.swift */; };
 		F1F1F1F1F1F1F1F1F1F1F102 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F1F1F1F1F1F1F1F1F1F1F101 /* InfoPlist.xcstrings */; };
@@ -67,9 +67,9 @@
 		E701122E2F9490A8005896B3 /* BillImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillImportView.swift; sourceTree = "<group>"; };
 		E70112322F94A24F005896B3 /* CategoryPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryPickerSheet.swift; sourceTree = "<group>"; };
 		E7517E412FBEE82700CF8466 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = SanJiao/Resources/Localizable.xcstrings; sourceTree = "<group>"; };
-		E7KC000000000001 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
-		E7AP000000000001 /* AmountParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountParser.swift; sourceTree = "<group>"; };
 		E7AL000000000001 /* AppLockManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockManager.swift; sourceTree = "<group>"; };
+		E7AP000000000001 /* AmountParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountParser.swift; sourceTree = "<group>"; };
+		E7KC000000000001 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 		E7KC000000000002 /* UnlockManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnlockManager.swift; sourceTree = "<group>"; };
 		E7KC000000000003 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		F1F1F1F1F1F1F1F1F1F1F101 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = InfoPlist.xcstrings; path = SanJiao/Resources/InfoPlist.xcstrings; sourceTree = "<group>"; };
@@ -345,14 +345,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = J57B27XGKT;
 				INFOPLIST_FILE = SanJiao/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = app.qingyu.ios;
 				PRODUCT_NAME = Qingyu_Quillion;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -428,14 +428,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = J57B27XGKT;
 				INFOPLIST_FILE = SanJiao/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = app.qingyu.ios;
 				PRODUCT_NAME = Qingyu_Quillion;
 				PROVISIONING_PROFILE_SPECIFIER = "";
